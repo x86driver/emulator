@@ -32,6 +32,8 @@ enum {
 
 #define RD_MASK         0x0000f000
 #define RD_SHIFT        12
+#define RN_MASK         0x000f0000
+#define RN_SHIFT        16
 #define RM_MASK         0x0000000f
 #define RM_SHIFT        0
 
