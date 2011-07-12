@@ -68,7 +68,14 @@ int main()
     fd = open("a.bin", O_RDONLY);
 
     while (read(fd, &inst, 4) > 0) {
-        dp_class(inst);
+        switch (inst_class(inst)) {
+        case CLASS_DATA_PROCESSING:
+            dp_class(inst);
+            break;
+        default:
+            printf("undefined instruction %x\n", inst);
+            break;
+        }
     }
 
     close(fd);
