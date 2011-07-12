@@ -75,5 +75,12 @@ enum {
 #define BIT30   0x40000000
 #define BIT31   0x80000000
 
+void print_preamble(uint32_t inst);
+
+static inline int getbit(uint32_t val, uint32_t bit)
+{
+    return (val & bit) > 0;
+}
+
 #endif
 
