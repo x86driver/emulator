@@ -8,6 +8,7 @@
 #include "inst.h"
 
 extern int (*alu_reg_op[16])(uint32_t);
+extern int (*alu_imm_op[16])(uint32_t);
 
 static inline int getbit(uint32_t val, uint32_t bit)
 {
@@ -47,6 +48,12 @@ int dp_class(uint32_t inst)
         } else if (bit[4] == 0) {
             aluop = (inst & ALU_OP_MASK) >> ALU_OP_SHIFT;
             alu_reg_op[aluop](inst);
+        }
+    } else {    /* immediate */
+        if (bit[24] == 1 && bit[23] == 0 && bit[20] == 0) {
+        } else {
+            aluop = (inst & ALU_OP_MASK) >> ALU_OP_SHIFT;
+            alu_imm_op[aluop](inst);
         }
     }
 
