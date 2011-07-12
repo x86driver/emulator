@@ -10,11 +10,6 @@
 extern int (*alu_reg_op[16])(uint32_t);
 extern int (*alu_imm_op[16])(uint32_t);
 
-static inline int getbit(uint32_t val, uint32_t bit)
-{
-    return (val & bit) > 0;
-}
-
 int inst_class(uint32_t inst)
 {
     /* FIXME:
@@ -27,6 +22,10 @@ int inst_class(uint32_t inst)
 
     if (bit[27] == 0 && bit[26] == 0) {
         return CLASS_DATA_PROCESSING;
+    }
+
+    if (bit[27] == 0 && bit[26] == 1) {
+        return CLASS_LOAD_STORE;
     }
 
     return 0;
@@ -60,6 +59,17 @@ int dp_class(uint32_t inst)
     return 0;
 }
 
+int load_store_class(uint32_t inst)
+{
+    if (getbit(inst, 20) == 1) {    /* load */
+        op_ldr(inst);
+    } else {    /* store */
+        op_str(inst);
+    }
+
+    return 0;
+}
+
 int main()
 {
     int fd;
@@ -71,6 +81,9 @@ int main()
         switch (inst_class(inst)) {
         case CLASS_DATA_PROCESSING:
             dp_class(inst);
+            break;
+        case CLASS_LOAD_STORE:
+            load_store_class(inst);
             break;
         default:
             printf("undefined instruction %x\n", inst);

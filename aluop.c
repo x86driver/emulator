@@ -3,7 +3,7 @@
 #include "inst.h"
 #include "aluop.h"
 
-void print_preamble(inst)
+void print_preamble(uint32_t inst)
 {
     static int count = 0;
     printf("%4x:\t%x\t", count, inst);

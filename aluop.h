@@ -23,5 +23,10 @@ static inline uint32_t getrn(uint32_t inst)
     return (inst & RN_MASK) >> RN_SHIFT;
 }
 
+static inline uint32_t getimm12(uint32_t inst)
+{
+    return (inst & IMM12_MASK);
+}
+
 #endif
 
