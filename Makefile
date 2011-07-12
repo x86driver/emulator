@@ -4,7 +4,7 @@ CFLAGS = -g
 
 all:$(TARGET)
 
-aluop.o:aluop.c
+aluop.o:aluop.c inst.h
 	gcc -Wall -c -o $@ $< $(CFLAGS)
 
 emulator:aluop.o main.c inst.h
