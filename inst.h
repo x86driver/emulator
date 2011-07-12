@@ -37,6 +37,8 @@ enum {
 #define RM_MASK         0x0000000f
 #define RM_SHIFT        0
 
+#define IMM12_MASK      0x00000fff
+
 #define BIT0    0x00000001
 #define BIT1    0x00000002
 #define BIT2    0x00000004
