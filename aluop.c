@@ -42,7 +42,10 @@ int mov_imm(struct CPUState *env, uint32_t inst)
     uint32_t imm12 = (inst & IMM12_MASK);
 
     print_preamble(env, inst);
-    printf("mov\t%s, #%d\t; 0x%x\n", reg_name(rd), imm12, imm12);
+    if (imm12 > 32)
+        printf("mov\t%s, #%d\t; 0x%x\n", reg_name(rd), imm12, imm12);
+    else
+        printf("mov\t%s, #%d\n", reg_name(rd), imm12);
 
     return 0;
 }

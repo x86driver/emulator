@@ -1,4 +1,5 @@
-    mov r8, #12
+    mov r8, #32
+    mov r9, #33
     add r1, r3, r7
     ldr r0, [r14]
     ldr r1, [r14], #0xfff
