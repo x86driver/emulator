@@ -69,12 +69,10 @@ int dp_class(struct CPUState *env, uint32_t inst)
 
 int load_store_class(struct CPUState *env, uint32_t inst)
 {
-    if (getbit(inst, BIT20) == 1) {    /* load */
-        op_ldr(env, inst);
-    } else {    /* store */
-        op_str(env, inst);
-    }
-
+    if (getbit(inst, BIT25) == 0)
+        ldst_imm(env, inst);
+    else
+        ldst_reg(env, inst);
     return 0;
 }
 

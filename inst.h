@@ -42,6 +42,10 @@ enum {
 #define RM_SHIFT        0
 
 #define IMM12_MASK      0x00000fff
+#define IMM5_MASK       0x00000f80
+#define IMM5_SHIFT      7
+#define TYPE_MASK       0x00000060
+#define TYPE_SHIFT      5
 
 #define SFLAG_MASK      0x00100000
 #define SFLAG_SHIFT     20

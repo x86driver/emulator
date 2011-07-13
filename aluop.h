@@ -32,5 +32,15 @@ static inline uint32_t getimm12(uint32_t inst)
     return (inst & IMM12_MASK);
 }
 
+static inline uint32_t getimm5(uint32_t inst)
+{
+    return (inst & IMM5_MASK) >> IMM5_SHIFT;
+}
+
+static inline uint32_t gettype(uint32_t inst)
+{
+    return (inst & TYPE_MASK) >> TYPE_SHIFT;
+}
+
 #endif
 

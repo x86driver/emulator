@@ -3,8 +3,8 @@
 
 #include "env.h"
 
-int op_ldr(struct CPUState *env, uint32_t inst);
-int op_str(struct CPUState *env, uint32_t inst);
+int ldst_imm(struct CPUState *env, uint32_t inst);
+int ldst_reg(struct CPUState *env, uint32_t inst);
 
 #endif
 

@@ -1,3 +1,8 @@
+    str r15, [r3, r0, lsl #31]
+/*
+    str r0, [r1, #34]!
+    strb r11, [r12]!
+
     ldr r13, [pc, #8]!
     mov r8, #32
     mov r9, #33
@@ -11,3 +16,4 @@
     ldrb r5, [r10], #200
     ldrb r6, [r9, #203]
     ldrb r7, [r8, #203]!
+*/
