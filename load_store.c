@@ -4,8 +4,9 @@
 #include "aluop.h"
 #include "mem.h"
 #include "reg.h"
+#include "env.h"
 
-int op_ldr(uint32_t inst)
+int op_ldr(struct CPUState *env, uint32_t inst)
 {
     uint32_t P, U, B, W, rn, rd;
     uint32_t imm12;
@@ -26,19 +27,19 @@ int op_ldr(uint32_t inst)
      * W = 1  ldr r0, [r1, #18]!
      */
 
-    print_preamble(inst);
+    print_preamble(env, inst);
     if (getbit(inst, BIT25) == 0) { /* immediate */
         if (B)
             printf("ldrb");
         else
             printf("ldr");
         printf("\t%s, [%s", reg_name(rd), reg_name(rn));
-        addr = get_mem(get_reg(rn));
+        addr = get_mem(env, get_reg(env, rn));
         if (P) {
             if (B)
-                val = get_mem_byte(addr);
+                val = get_mem_byte(env, addr);
             else
-                val = get_mem(addr);
+                val = get_mem(env, addr);
             if (imm12)
                 if (U)
                     printf(", #%d]", imm12);
@@ -48,9 +49,9 @@ int op_ldr(uint32_t inst)
                 printf("]");
             if (W) {
                 if (U)
-                    set_reg(rn, addr + imm12);
+                    set_reg(env, rn, addr + imm12);
                 else
-                    set_reg(rn, addr - imm12);
+                    set_reg(env, rn, addr - imm12);
                 printf("!");
             }
             if (imm12 > 32)
@@ -58,9 +59,9 @@ int op_ldr(uint32_t inst)
             printf("\n");
         } else {
             if (B)
-                val = get_mem_byte(addr + imm12);
+                val = get_mem_byte(env, addr + imm12);
             else
-                val = get_mem(addr + imm12);
+                val = get_mem(env, addr + imm12);
             if (imm12)
                 if (U)
                     printf("], #%d", imm12);
@@ -72,16 +73,16 @@ int op_ldr(uint32_t inst)
                 printf("\t; 0x%x", imm12);
             printf("\n");
             if (U)
-                set_reg(rn, addr + imm12);
+                set_reg(env, rn, addr + imm12);
             else
-                set_reg(rn, addr - imm12);
+                set_reg(env, rn, addr - imm12);
         }
     } else {    /* register */
     }
     return 0;
 }
 
-int op_str(uint32_t inst)
+int op_str(struct CPUState *env, uint32_t inst)
 {
     return 0;
 }

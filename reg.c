@@ -1,8 +1,7 @@
 #include <stdint.h>
+#include "env.h"
 
 #define REG_NUM 17  /* r0-r15, cpsr */
-
-static uint32_t regs[REG_NUM];
 
 char *reg_name(int reg)
 {
@@ -16,12 +15,12 @@ char *reg_name(int reg)
     return regname[reg];
 }
 
-uint32_t get_reg(int reg)
+uint32_t get_reg(struct CPUState *env, int reg)
 {
-    return regs[reg];
+    return env->regs[reg];
 }
 
-void set_reg(int reg, uint32_t val)
+void set_reg(struct CPUState *env, int reg, uint32_t val)
 {
-    regs[reg] = val;
+    env->regs[reg] = val;
 }

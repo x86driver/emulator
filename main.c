@@ -5,11 +5,18 @@
 #include <endian.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 #include "inst.h"
 #include "load_store.h"
+#include "env.h"
+#include "aluop.h"
 
-extern int (*alu_reg_op[16])(uint32_t);
-extern int (*alu_imm_op[16])(uint32_t);
+void print_preamble(struct CPUState *env, uint32_t inst)
+{
+    printf("%4x:\t%x\t", env->pc, inst);
+    env->pc += 4;
+}
 
 int inst_class(uint32_t inst)
 {
@@ -32,7 +39,7 @@ int inst_class(uint32_t inst)
     return 0;
 }
 
-int dp_class(uint32_t inst)
+int dp_class(struct CPUState *env, uint32_t inst)
 {
     uint32_t bit[32];
     uint32_t aluop;
@@ -47,25 +54,25 @@ int dp_class(uint32_t inst)
         if (bit[24] == 1 && bit[23] == 0 && bit[20] == 0) {
         } else if (bit[4] == 0) {
             aluop = (inst & ALU_OP_MASK) >> ALU_OP_SHIFT;
-            alu_reg_op[aluop](inst);
+            alu_reg_op[aluop](env, inst);
         }
     } else {    /* immediate */
         if (bit[24] == 1 && bit[23] == 0 && bit[20] == 0) {
         } else {
             aluop = (inst & ALU_OP_MASK) >> ALU_OP_SHIFT;
-            alu_imm_op[aluop](inst);
+            alu_imm_op[aluop](env, inst);
         }
     }
 
     return 0;
 }
 
-int load_store_class(uint32_t inst)
+int load_store_class(struct CPUState *env, uint32_t inst)
 {
     if (getbit(inst, BIT20) == 1) {    /* load */
-        op_ldr(inst);
+        op_ldr(env, inst);
     } else {    /* store */
-        op_str(inst);
+        op_str(env, inst);
     }
 
     return 0;
@@ -75,16 +82,24 @@ int main()
 {
     int fd;
     uint32_t inst;
+    struct CPUState *env;
+
+    env = malloc(sizeof(struct CPUState));
+    if (!env) {
+        perror("malloc");
+        exit(1);
+    }
+    memset(env, 0, sizeof(struct CPUState));
 
     fd = open("a.bin", O_RDONLY);
 
     while (read(fd, &inst, 4) > 0) {
         switch (inst_class(inst)) {
         case CLASS_DATA_PROCESSING:
-            dp_class(inst);
+            dp_class(env, inst);
             break;
         case CLASS_LOAD_STORE:
-            load_store_class(inst);
+            load_store_class(env, inst);
             break;
         default:
             printf("undefined instruction %x\n", inst);

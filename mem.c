@@ -1,16 +1,13 @@
 #include <stdio.h>
 #include "mem.h"
+#include "env.h"
 
-#define MEM_SIZE 4096
-
-static uint32_t memory[MEM_SIZE];
-
-uint32_t get_mem(uint32_t addr)
+uint32_t get_mem(struct CPUState *env, uint32_t addr)
 {
-    return memory[addr];
+    return env->memory[addr];
 }
 
-uint8_t get_mem_byte(uint32_t addr)
+uint8_t get_mem_byte(struct CPUState *env, uint32_t addr)
 {
-    return memory[addr] & 0x0ff;
+    return env->memory[addr] & 0x0ff;
 }
