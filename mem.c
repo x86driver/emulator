@@ -1,9 +1,15 @@
 #include <stdio.h>
 #include "mem.h"
 #include "env.h"
+#include "inst.h"
 
 uint32_t get_mem(struct CPUState *env, uint32_t addr)
 {
+    if (addr < 0 || addr >= MEM_SIZE) {
+        derror("read memory @ 0x%x failed\n", addr);
+        return 0;
+    }
+
     return env->memory[addr];
 }
 
@@ -14,6 +20,10 @@ uint8_t get_mem_byte(struct CPUState *env, uint32_t addr)
 
 void set_mem(struct CPUState *env, uint32_t addr, uint32_t val)
 {
+    if (addr < 0 || addr >= MEM_SIZE) {
+        derror("write memory @ 0x%x failed\n", addr);
+        return;
+    }
     env->memory[addr] = val;
 }
 
