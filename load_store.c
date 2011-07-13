@@ -2,12 +2,14 @@
 #include <stdint.h>
 #include "inst.h"
 #include "aluop.h"
+#include "mem.h"
+#include "reg.h"
 
 int op_ldr(uint32_t inst)
 {
     uint32_t P, U, B, W, rn, rd;
     uint32_t imm12;
-    uint32_t addr;
+    uint32_t addr, val;
 
     P = getbit(inst, BIT24);
     U = getbit(inst, BIT23);
@@ -24,14 +26,55 @@ int op_ldr(uint32_t inst)
      * W = 1  ldr r0, [r1, #18]!
      */
 
-    print_preamble();
+    print_preamble(inst);
     if (getbit(inst, BIT25) == 0) { /* immediate */
-        printf("ldr\t%s, [%s", rd, rn);
+        if (B)
+            printf("ldrb");
+        else
+            printf("ldr");
+        printf("\t%s, [%s", reg_name(rd), reg_name(rn));
+        addr = get_mem(get_reg(rn));
         if (P) {
-            printf(", #%d]", getimm12(inst));
+            if (B)
+                val = get_mem_byte(addr);
+            else
+                val = get_mem(addr);
+            if (imm12)
+                if (U)
+                    printf(", #%d]", imm12);
+                else
+                    printf(", #-%d]", imm12);
+            else
+                printf("]");
             if (W) {
-                /* to be continued */
+                if (U)
+                    set_reg(rn, addr + imm12);
+                else
+                    set_reg(rn, addr - imm12);
+                printf("!");
             }
+            if (imm12 > 32)
+                printf("\t; 0x%x", imm12);
+            printf("\n");
+        } else {
+            if (B)
+                val = get_mem_byte(addr + imm12);
+            else
+                val = get_mem(addr + imm12);
+            if (imm12)
+                if (U)
+                    printf("], #%d", imm12);
+                else
+                    printf("], #-%d", imm12);
+            else
+                printf("]");
+            if (imm12 > 32)
+                printf("\t; 0x%x", imm12);
+            printf("\n");
+            if (U)
+                set_reg(rn, addr + imm12);
+            else
+                set_reg(rn, addr - imm12);
         }
     } else {    /* register */
     }

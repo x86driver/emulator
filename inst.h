@@ -1,8 +1,11 @@
 #ifndef _ARM_INST_H
 #define _ARM_INST_H
 
+#include <stdint.h>
+
 enum {
     CLASS_DATA_PROCESSING,
+    CLASS_LOAD_STORE,
 };
 
 enum {
