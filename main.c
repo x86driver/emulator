@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "inst.h"
+#include "load_store.h"
 
 extern int (*alu_reg_op[16])(uint32_t);
 extern int (*alu_imm_op[16])(uint32_t);
@@ -61,7 +62,7 @@ int dp_class(uint32_t inst)
 
 int load_store_class(uint32_t inst)
 {
-    if (getbit(inst, 20) == 1) {    /* load */
+    if (getbit(inst, BIT20) == 1) {    /* load */
         op_ldr(inst);
     } else {    /* store */
         op_str(inst);
