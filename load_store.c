@@ -121,18 +121,28 @@ int ldst_reg(struct CPUState *env, uint32_t inst)
 
     if (B)
         printf("b");
-    printf("\t%s, [%s, ", reg_name(rt), reg_name(rn));
+    printf("\t%s, [%s", reg_name(rt), reg_name(rn));
+    if (P) {
+        if (U)
+            printf(", %s]", reg_name(rm));
+        else
+            printf(", -%s]", reg_name(rm));
+        if (W)
+            printf("!");
+    } else {
+        if (U)
+            printf("], %s", reg_name(rm));
+        else
+            printf("], -%s", reg_name(rm));
+    }
+    printf("\n");
 
     offset_addr = get_mem(env, get_reg(env, rm));    /* 要加 shift */
 
     if (U)
         offset_addr += get_mem(env, get_reg(env, rn) + offset_addr);
-    else {
+    else
         offset_addr -= get_mem(env, get_reg(env, rn) - offset_addr);
-        printf("-");
-    }
-
-    printf("%s", reg_name(rm));
 
     if (P)
         addr = offset_addr;
@@ -146,11 +156,8 @@ int ldst_reg(struct CPUState *env, uint32_t inst)
     else
         set_mem(env, addr, data);
 
-    printf("]");
-    if (W) {
+    if (W)
         set_reg(env, rn, offset_addr);
-        printf("!");
-    }
 
     printf("\n");
     return 0;
