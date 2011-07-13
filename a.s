@@ -1,4 +1,7 @@
+    strb r0, [r1, r3]
+/*
     str r15, [r3, r0, lsl #31]
+*/
 /*
     str r0, [r1, #34]!
     strb r11, [r12]!
