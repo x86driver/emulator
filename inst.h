@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include "env.h"
 
+#define error printf
+
 enum {
     CLASS_DATA_PROCESSING,
     CLASS_LOAD_STORE,

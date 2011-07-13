@@ -1,8 +1,6 @@
-    strb r0, [r1, r3]
-/*
-    str r15, [r3, r0, lsl #31]
-*/
-/*
+    str r1, [r14, r3, lsr #3]!
+    ldr r13, [r15]
+
     str r0, [r1, #34]!
     strb r11, [r12]!
 
@@ -19,4 +17,4 @@
     ldrb r5, [r10], #200
     ldrb r6, [r9, #203]
     ldrb r7, [r8, #203]!
-*/
+
