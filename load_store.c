@@ -24,7 +24,7 @@ static uint32_t decode_imm_shift(uint32_t type, uint32_t imm5)
         else
             return imm5;
     default:
-        error("undefined shift type, %s\n", __FUNCTION__);
+        derror("undefined shift type, %s\n", __FUNCTION__);
         exit(1);
     }
 }
@@ -46,7 +46,7 @@ static uint32_t shift(uint32_t val, uint32_t type, uint32_t imm5)
     case 1:
         return val >> decode_imm_shift(type, imm5);
     default:
-        error("undefined shift instruction\n");
+        derror("undefined shift instruction\n");
         exit(1);
         break;
     }
@@ -64,9 +64,9 @@ static uint32_t shift(uint32_t val, uint32_t type, uint32_t imm5)
 
 int ldst_imm(struct CPUState *env, uint32_t inst)
 {
-    uint32_t P, U, B, W, L, rn, rd;
+    uint32_t P, U, B, W, L, rn, rt;
     uint32_t imm12;
-    uint32_t addr, val;
+    uint32_t offset_addr, address, data;
 
     P = getbit(inst, BIT24);
     U = getbit(inst, BIT23);
@@ -74,69 +74,70 @@ int ldst_imm(struct CPUState *env, uint32_t inst)
     W = getbit(inst, BIT21);
     L = getbit(inst, BIT20);
     rn = getrn(inst);
-    rd = getrd(inst);
+    rt = getrd(inst);
     imm12 = getimm12(inst);
 
     print_preamble(env, inst);
+
     printf("%s", (L ? "ldr" : "str"));
+
     if (B)
         printf("b");
-    printf("\t%s, [%s", reg_name(rd), reg_name(rn));
-    if (rn == REG_PC)
-        addr = get_mem(env, get_reg(env, rn) + 8);
-    else
-        addr = get_mem(env, get_reg(env, rn));
-    if (P) {
-        if (B) {
-            if (L)
-                val = get_mem_byte(env, addr);
-            else
-                set_mem_byte(env, addr, imm12);
-        } else {
-            if (L)
-                val = get_mem(env, addr);
-            else
-                set_mem(env, addr, imm12);
-        }
-        if (imm12 || rn == REG_PC)
+    printf("\t%s, [%s", reg_name(rt), reg_name(rn));
+
+    if (imm12 || rn == REG_PC) {
+        if (P) {
             if (U)
                 printf(", #%d]", imm12);
             else
                 printf(", #-%d]", imm12);
-        else
-            printf("]");
-        if (W) {
-            if (U)
-                set_reg(env, rn, addr + imm12);
-            else
-                set_reg(env, rn, addr - imm12);
-            printf("!");
-        }
-        if (imm12 > 32)
-            printf("\t; 0x%x", imm12);
-        if (rn == REG_PC)
-            printf("\t; %x <.text+0x%x>", env->pc+4+imm12, env->pc+4+imm12);
-        printf("\n");
-    } else {
-        if (B)
-            val = get_mem_byte(env, addr + imm12);
-        else
-            val = get_mem(env, addr + imm12);
-        if (imm12)
+        } else {
             if (U)
                 printf("], #%d", imm12);
             else
                 printf("], #-%d", imm12);
-        else
-            printf("]");
-        if (imm12 > 32)
-            printf("\t; 0x%x", imm12);
-        printf("\n");
+        }
+    } else
+        printf("]");
+
+    if (W)
+        printf("!");
+
+    if (imm12 > 32)
+        printf("\t; 0x%x", imm12);
+    else if (rn == REG_PC) {
+        uint32_t tmpaddr = env->pc+4;
         if (U)
-            set_reg(env, rn, addr + imm12);
+            tmpaddr += imm12;
         else
-            set_reg(env, rn, addr - imm12);
+            tmpaddr -= imm12;
+        printf("\t; %x <.text+0x%x>", tmpaddr, tmpaddr);
     }
+    printf("\n");
+
+    if (U)
+        offset_addr = get_reg(env, rn) + imm12;
+    else
+        offset_addr = get_reg(env, rn) - imm12;
+
+    if (P)
+        address = offset_addr;
+    else
+        address = get_reg(env, rn);
+
+    if (L)
+        if (B)
+            data = get_mem_byte(env, address);
+        else
+            data = get_mem(env, address);
+    else
+        if (B)
+            set_mem_byte(env, address, get_reg(env, rt));
+        else
+            set_mem(env, address, get_reg(env, rt));
+
+    if (W)
+        set_reg(env, rn, offset_addr);
     return 0;
 }
 
@@ -168,6 +169,7 @@ int ldst_reg(struct CPUState *env, uint32_t inst)
     if (B)
         printf("b");
     printf("\t%s, [%s", reg_name(rt), reg_name(rn));
+
     if (P) {
         if (U)
             printf(", %s", reg_name(rm));
@@ -186,7 +188,7 @@ int ldst_reg(struct CPUState *env, uint32_t inst)
     }
     printf("\n");
 
-    offset_addr = shift(get_reg(env, rm), type, imm5);    /* 要加 shift */
+    offset_addr = shift(get_reg(env, rm), type, imm5);
 
     if (U)
         offset_addr += get_mem(env, get_reg(env, rn) + offset_addr);

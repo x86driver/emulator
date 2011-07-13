@@ -4,7 +4,11 @@
 #include <stdint.h>
 #include "env.h"
 
-#define error printf
+#ifdef _DEBUG_
+#define derror printf
+#else
+#define derror(str, ...)
+#endif
 
 enum {
     CLASS_DATA_PROCESSING,
