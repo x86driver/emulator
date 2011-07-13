@@ -14,7 +14,7 @@
 
 void print_preamble(struct CPUState *env, uint32_t inst)
 {
-    printf("%4x:\t%x\t", env->pc, inst);
+    printf("%4x:\t%x \t", env->pc, inst);
     env->pc += 4;
 }
 

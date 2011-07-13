@@ -1,10 +1,56 @@
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "inst.h"
 #include "aluop.h"
 #include "mem.h"
 #include "reg.h"
 #include "env.h"
+
+static uint32_t decode_imm_shift(uint32_t type, uint32_t imm5)
+{
+    switch (type) {
+    case 0:
+        return imm5;
+    case 1:
+    case 2:
+        if (imm5 == 0)
+            return 32;
+        else
+            return imm5;
+    case 3:
+        if (imm5 == 0)
+            return 1;
+        else
+            return imm5;
+    default:
+        error("undefined shift type, %s\n", __FUNCTION__);
+        exit(1);
+    }
+}
+
+static char *shift_type(uint32_t type)
+{
+    static char *t[] = {
+        "lsl", "lsr", "asr", "ror"
+    };
+
+    return t[type];
+}
+
+static uint32_t shift(uint32_t val, uint32_t type, uint32_t imm5)
+{
+    switch (type) {
+    case 0:
+        return val << decode_imm_shift(type, imm5);
+    case 1:
+        return val >> decode_imm_shift(type, imm5);
+    default:
+        error("undefined shift instruction\n");
+        exit(1);
+        break;
+    }
+}
 
 /* P = 0  ldr r0, [r1], #18    ; 會更改到 r1
  * P = 1  ldr r0, [r1, #18]    ; 根據 W
@@ -124,9 +170,12 @@ int ldst_reg(struct CPUState *env, uint32_t inst)
     printf("\t%s, [%s", reg_name(rt), reg_name(rn));
     if (P) {
         if (U)
-            printf(", %s]", reg_name(rm));
+            printf(", %s", reg_name(rm));
         else
-            printf(", -%s]", reg_name(rm));
+            printf(", -%s", reg_name(rm));
+        if (imm5)
+            printf(", %s #%d", shift_type(type), imm5);
+        printf("]");
         if (W)
             printf("!");
     } else {
@@ -137,7 +186,7 @@ int ldst_reg(struct CPUState *env, uint32_t inst)
     }
     printf("\n");
 
-    offset_addr = get_mem(env, get_reg(env, rm));    /* 要加 shift */
+    offset_addr = shift(get_reg(env, rm), type, imm5);    /* 要加 shift */
 
     if (U)
         offset_addr += get_mem(env, get_reg(env, rn) + offset_addr);
@@ -159,7 +208,6 @@ int ldst_reg(struct CPUState *env, uint32_t inst)
     if (W)
         set_reg(env, rn, offset_addr);
 
-    printf("\n");
     return 0;
 }
 

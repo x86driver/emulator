@@ -1,8 +1,6 @@
 #include <stdint.h>
 #include "env.h"
 
-#define REG_NUM 17  /* r0-r15, cpsr */
-
 char *reg_name(int reg)
 {
     static char *regname[] = {
