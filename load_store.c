@@ -34,13 +34,16 @@ int op_ldr(struct CPUState *env, uint32_t inst)
         else
             printf("ldr");
         printf("\t%s, [%s", reg_name(rd), reg_name(rn));
-        addr = get_mem(env, get_reg(env, rn));
+        if (rn == REG_PC)
+            addr = get_mem(env, get_reg(env, rn) + 8);
+        else
+            addr = get_mem(env, get_reg(env, rn));
         if (P) {
             if (B)
                 val = get_mem_byte(env, addr);
             else
                 val = get_mem(env, addr);
-            if (imm12)
+            if (imm12 || rn == REG_PC)
                 if (U)
                     printf(", #%d]", imm12);
                 else
@@ -56,6 +59,8 @@ int op_ldr(struct CPUState *env, uint32_t inst)
             }
             if (imm12 > 32)
                 printf("\t; 0x%x", imm12);
+            if (rn == REG_PC)
+                printf("\t; %x <.text+0x%x>", env->pc+4+imm12, env->pc+4+imm12);
             printf("\n");
         } else {
             if (B)
