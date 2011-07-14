@@ -1,5 +1,7 @@
-    mov r1, #1938
-/*
+    movlts r1, r2
+
+    moveqs r1, #131072
+
     str r15, [r14], #12
     ldr r0, [r15]
     str r1, [r14, r3, lsr #3]!
@@ -23,4 +25,3 @@
     ldrb r6, [r9, #203]
     ldrb r7, [r8, #203]!
 
-*/
