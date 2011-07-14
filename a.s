@@ -1,3 +1,7 @@
+    mov r1, #1
+    add r0, r0, r1, lsl #2
+
+
     movlts r1, r2
 
     moveqs r1, #131072
@@ -24,4 +28,5 @@
     ldrb r5, [r10], #200
     ldrb r6, [r9, #203]
     ldrb r7, [r8, #203]!
+
 
