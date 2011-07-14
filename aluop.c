@@ -5,6 +5,7 @@
 #include "aluop.h"
 #include "reg.h"
 #include "env.h"
+#include "load_store.h"
 
 int no_op(struct CPUState *env, uint32_t inst)
 {
@@ -62,15 +63,18 @@ int add_reg(struct CPUState *env, uint32_t inst)
 int mov_imm(struct CPUState *env, uint32_t inst)
 {
     uint32_t rd = getrd(inst);
-    uint32_t imm12 = (inst & IMM12_MASK);
+    uint32_t imm12 = getimm12(inst);
+    uint32_t unrotated_value = (imm12 & 0xff);  /* imm12<7:0> */
+    uint32_t rot = 2 * ((imm12 & 0xf00) >> 8);
+    uint32_t value = shift(env, unrotated_value, TYPE_ROR, rot);
 
     print_preamble(env, inst);
-    if (imm12 > 32)
-        printf("mov\t%s, #%d\t; 0x%x\n", reg_name(rd), imm12, imm12);
+    if (value > 32)
+        printf("mov\t%s, #%d\t; 0x%x\n", reg_name(rd), value, value);
     else
-        printf("mov\t%s, #%d\n", reg_name(rd), imm12);
+        printf("mov\t%s, #%d\n", reg_name(rd), value);
 
-    set_reg(env, rd, imm12);
+    set_reg(env, rd, value);
     if (sflag(inst) && rd != REG_PC) {
         env->cpsr.N = getbit(inst, BIT31);
         env->cpsr.Z = (rd == 0);
