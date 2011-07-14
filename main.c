@@ -13,12 +13,6 @@
 #include "aluop.h"
 #include "function.h"
 
-void print_preamble(struct CPUState *env, uint32_t inst)
-{
-    printf("%4x:\t%x \t", env->pc, inst);
-    env->pc += 4;
-}
-
 int inst_class(uint32_t inst)
 {
     /* FIXME:

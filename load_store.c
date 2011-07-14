@@ -6,6 +6,7 @@
 #include "mem.h"
 #include "reg.h"
 #include "env.h"
+#include "utils.h"
 
 static uint32_t decode_imm_shift(uint32_t type, uint32_t imm5)
 {
@@ -43,7 +44,10 @@ uint32_t shift(struct CPUState *env, uint32_t val, uint32_t type, uint32_t imm5)
     uint64_t ff;
     uint32_t sh;
 
-    sh = decode_imm_shift(type, imm5);
+    sh = imm5;
+
+    if (sh == 0)
+        return val;
 
     switch (type) {
     case 0: /* lsl */

@@ -1,8 +1,11 @@
 #ifndef _ARM_INST_H
 #define _ARM_INST_H
 
+#include <stdio.h>
 #include <stdint.h>
 #include "env.h"
+#include "cond.h"
+#include "aluop.h"
 
 #ifdef _DEBUG_
 #define derror printf
@@ -36,6 +39,9 @@ enum {
     OP_BIC,
     OP_MVN,
 };
+
+#define COND_MASK       0xf0000000
+#define COND_SHIFT      28
 
 #define ALU_OP_MASK     0x01e00000
 #define ALU_OP_SHIFT    21
@@ -89,7 +95,45 @@ enum {
 #define BIT30   0x40000000
 #define BIT31   0x80000000
 
-void print_preamble(struct CPUState *env, uint32_t inst);
+static inline int sflag(uint32_t inst)
+{
+    return (inst & SFLAG_MASK) >> SFLAG_SHIFT;
+}
+
+static inline uint32_t getrd(uint32_t inst)
+{
+    return (inst & RD_MASK) >> RD_SHIFT;
+}
+
+static inline uint32_t getrm(uint32_t inst)
+{
+    return (inst & RM_MASK) >> RM_SHIFT;
+}
+
+static inline uint32_t getrn(uint32_t inst)
+{
+    return (inst & RN_MASK) >> RN_SHIFT;
+}
+
+static inline uint32_t getimm12(uint32_t inst)
+{
+    return (inst & IMM12_MASK);
+}
+
+static inline uint32_t getimm5(uint32_t inst)
+{
+    return (inst & IMM5_MASK) >> IMM5_SHIFT;
+}
+
+static inline uint32_t gettype(uint32_t inst)
+{
+    return (inst & TYPE_MASK) >> TYPE_SHIFT;
+}
+
+static inline uint32_t getcond(uint32_t inst)
+{
+    return (inst & COND_MASK) >> COND_SHIFT;
+}
 
 static inline int getbit(uint32_t val, uint32_t bit)
 {

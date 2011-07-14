@@ -6,6 +6,8 @@
 #include "reg.h"
 #include "env.h"
 #include "load_store.h"
+#include "cond.h"
+#include "utils.h"
 
 int no_op(struct CPUState *env, uint32_t inst)
 {
@@ -29,13 +31,7 @@ int mov_reg(struct CPUState *env, uint32_t inst)
             printf("Unfinished lsl\n");
             exit(1);
         } else {    /* mov */
-            printf("mov");
-            set_reg(env, rd, get_reg(env, rm));
-            if (sflag(inst) && rd != REG_PC) {
-                printf("s");
-                env->cpsr.N = getbit(inst, BIT31);
-                env->cpsr.Z = (rm == 0);
-            }
+            print_inst("mov", inst);
         }
         break;
     default:
@@ -44,6 +40,29 @@ int mov_reg(struct CPUState *env, uint32_t inst)
     }
 
     printf("\t%s, %s\n", reg_name(rd), reg_name(rm));
+
+/* implement */
+
+    switch (type) {
+    case 0: /* mov or lsl */
+        if (imm5) { /* lsl */
+            printf("Unfinished lsl\n");
+            exit(1);
+        } else {    /* mov */
+            if (!check_cond(env, inst))
+                return 0;
+            set_reg(env, rd, get_reg(env, rm));
+            if (sflag(inst) && rd != REG_PC) {
+                env->cpsr.N = getbit(inst, BIT31);
+                env->cpsr.Z = (rm == 0);
+
+            }
+        }
+        break;
+    default:
+        printf("Unfinished mov shift\n");
+        exit(1);
+    }
 
     return 0;
 }
@@ -69,15 +88,19 @@ int mov_imm(struct CPUState *env, uint32_t inst)
     uint32_t value = shift(env, unrotated_value, TYPE_ROR, rot);
 
     print_preamble(env, inst);
+    print_inst("mov", inst);
     if (value > 32)
-        printf("mov\t%s, #%d\t; 0x%x\n", reg_name(rd), value, value);
+        printf("\t%s, #%d\t; 0x%x\n", reg_name(rd), value, value);
     else
-        printf("mov\t%s, #%d\n", reg_name(rd), value);
+        printf("\t%s, #%d\n", reg_name(rd), value);
 
     set_reg(env, rd, value);
     if (sflag(inst) && rd != REG_PC) {
         env->cpsr.N = getbit(inst, BIT31);
         env->cpsr.Z = (rd == 0);
+/* FIXME:
+ * I'm not sure whether carry bit should be set or not
+ */
 //        env->cpsr.C = doremi
     }
 
