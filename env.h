@@ -1,11 +1,13 @@
 #ifndef _ENV_H
 #define _ENV_H
 
+#include <stdint.h>
+
 #define REG_NUM 16  /* r0-r15 */
 #define MEM_SIZE 4096
 
 struct Reg_CPSR {
-    uint32_t c;
+    uint32_t N, Z, C, V;
 };
 
 struct CPUState {

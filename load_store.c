@@ -38,13 +38,36 @@ static char *shift_type(uint32_t type)
     return t[type];
 }
 
-static uint32_t shift(uint32_t val, uint32_t type, uint32_t imm5)
+static uint32_t shift(struct CPUState *env, uint32_t val, uint32_t type, uint32_t imm5)
 {
+    uint64_t ff;
+    uint32_t sh;
+
+    sh = decode_imm_shift(type, imm5);
+
     switch (type) {
-    case 0:
-        return val << decode_imm_shift(type, imm5);
-    case 1:
-        return val >> decode_imm_shift(type, imm5);
+    case 0: /* lsl */
+        return val << sh;
+    case 1: /* lsr */
+        return val >> sh;
+    case 2: /* asr */
+        if (getbit(val, BIT31) == 1) {  /* negative */
+            ff = 0xffffffff00000000LL;
+            return (ff | val) >> sh;
+        } else
+            return val >> sh;
+    case 3:
+        if (imm5) { /* ror */
+            uint64_t tmpb;
+            ff = val;
+            ff <<= 32;
+            ff >>= sh;
+            val >>= sh;
+            tmpb = ff & 0xffffffff;
+            return val | tmpb;
+        } else {    /* rrx */
+            return (val >> 1) | (env->cpsr.C << 31);
+        }
     default:
         derror("undefined shift instruction\n");
         exit(1);
@@ -115,10 +138,14 @@ int ldst_imm(struct CPUState *env, uint32_t inst)
     }
     printf("\n");
 
+    /* 未驗證 */
+    if (rn == REG_PC)
+        offset_addr = env->pc+4;
+
     if (U)
-        offset_addr = get_reg(env, rn) + imm12;
+        offset_addr += get_reg(env, rn) + imm12;
     else
-        offset_addr = get_reg(env, rn) - imm12;
+        offset_addr += get_reg(env, rn) - imm12;
 
     if (P)
         address = offset_addr;
@@ -188,7 +215,7 @@ int ldst_reg(struct CPUState *env, uint32_t inst)
     }
     printf("\n");
 
-    offset_addr = shift(get_reg(env, rm), type, imm5);
+    offset_addr = shift(env, get_reg(env, rm), type, imm5);
 
     if (U)
         offset_addr += get_mem(env, get_reg(env, rn) + offset_addr);
