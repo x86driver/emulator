@@ -8,7 +8,7 @@
 #include "env.h"
 #include "utils.h"
 
-static uint32_t decode_imm_shift(uint32_t type, uint32_t imm5)
+uint32_t decode_imm_shift(uint32_t type, uint32_t imm5)
 {
     switch (type) {
     case 0:
@@ -30,11 +30,20 @@ static uint32_t decode_imm_shift(uint32_t type, uint32_t imm5)
     }
 }
 
-static char *shift_type(uint32_t type)
+const char *shift_type(uint32_t type, uint32_t imm5)
 {
-    static char *t[] = {
-        "lsl", "lsr", "asr", "ror"
+    static const char *t[] = {
+        "lsl", "lsr", "asr", "ror", "rrx"
     };
+
+    if (type == 0 && imm5 == 0)
+        return "";
+    if (type == 3) {
+        if (imm5 == 0)
+            return t[4];
+        else
+            return t[3];
+    }
 
     return t[type];
 }
@@ -207,7 +216,7 @@ int ldst_reg(struct CPUState *env, uint32_t inst)
         else
             printf(", -%s", reg_name(rm));
         if (imm5)
-            printf(", %s #%d", shift_type(type), imm5);
+            printf(", %s #%d", shift_type(type, imm5), imm5);
         printf("]");
         if (W)
             printf("!");
