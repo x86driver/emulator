@@ -1,5 +1,4 @@
-    mov r1, #123
-    mov r0, r1
+    mov r1, #1938
 /*
     str r15, [r14], #12
     ldr r0, [r15]

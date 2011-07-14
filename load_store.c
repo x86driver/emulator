@@ -38,7 +38,7 @@ static char *shift_type(uint32_t type)
     return t[type];
 }
 
-static uint32_t shift(struct CPUState *env, uint32_t val, uint32_t type, uint32_t imm5)
+uint32_t shift(struct CPUState *env, uint32_t val, uint32_t type, uint32_t imm5)
 {
     uint64_t ff;
     uint32_t sh;
