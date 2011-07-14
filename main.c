@@ -11,6 +11,7 @@
 #include "load_store.h"
 #include "env.h"
 #include "aluop.h"
+#include "function.h"
 
 void print_preamble(struct CPUState *env, uint32_t inst)
 {
@@ -76,9 +77,9 @@ int load_store_class(struct CPUState *env, uint32_t inst)
     return 0;
 }
 
-int main()
+int main(int argc, char **argv)
 {
-    int fd;
+    int fd, c;
     uint32_t inst;
     struct CPUState *env;
 
@@ -107,5 +108,12 @@ int main()
 
     close(fd);
 
+    while ((c = getopt(argc, argv, "r")) != -1) {
+        switch (c) {
+        case 'r':
+            dump_reg(env);
+            break;
+        }
+    }
     return 0;
 }
