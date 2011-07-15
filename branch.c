@@ -16,12 +16,6 @@ int branch(struct CPUState *env, uint32_t inst)
 {
     uint32_t imm24;
 
-    print_preamble(env, inst);
-    print_inst_without_s("b", inst);
-    printf("\t");
-    print_branch_pc(env, inst);
-    printf("\n");
-
     if (!check_cond(env, inst))
         return 0;
     imm24 = getimm24(inst);

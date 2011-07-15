@@ -21,28 +21,6 @@ int mov_reg(struct CPUState *env, uint32_t inst)
     uint32_t imm5 = getimm5(inst);
     uint32_t type = gettype(inst);
 
-    print_preamble(env, inst);
-
-    /* 在這裡判斷五種: mov, lsl, lsr, asr, rrx, ror */
-
-    switch (type) {
-    case 0: /* mov or lsl */
-        if (imm5) { /* lsl */
-            printf("Unfinished lsl\n");
-            exit(1);
-        } else {    /* mov */
-            print_inst("mov", inst);
-        }
-        break;
-    default:
-        printf("Unfinished mov shift\n");
-        exit(1);
-    }
-
-    printf("\t%s, %s\n", reg_name(rd), reg_name(rm));
-
-/* implement */
-
     if (!check_cond(env, inst))
         return 0;
     switch (type) {
@@ -95,15 +73,6 @@ int add_reg(struct CPUState *env, uint32_t inst)
     uint32_t type = gettype(inst);
     uint32_t imm5 = getimm5(inst);
     uint32_t sh, shifted, result;
-    const char *str;
-
-    print_preamble(env, inst);
-    print_inst("add", inst);
-    printf("\t%s, %s, %s", reg_name(rd), reg_name(rn), reg_name(rm));
-    str = shift_type(type, imm5);
-    if (str[0] != '\0')
-        printf(", %s #%d", str, imm5);
-    printf("\n");
 
     if (!check_cond(env, inst))
         return 0;
@@ -123,10 +92,6 @@ int cmp_reg(struct CPUState *env, uint32_t inst)
     uint32_t imm5 = getimm5(inst);
     uint32_t sh, shifted;
 
-    print_preamble(env, inst);
-    print_inst_without_s("cmp", inst);
-    printf("\t%s, %s\n", reg_name(rn), reg_name(rm));
-
     if (!check_cond(env, inst))
         return 0;
     sh = decode_imm_shift(type, imm5);
@@ -143,13 +108,6 @@ int mov_imm(struct CPUState *env, uint32_t inst)
     uint32_t unrotated_value = (imm12 & 0xff);  /* imm12<7:0> */
     uint32_t rot = 2 * ((imm12 & 0xf00) >> 8);
     uint32_t value = shift(env, unrotated_value, TYPE_ROR, rot);
-
-    print_preamble(env, inst);
-    print_inst("mov", inst);
-    if (value > 32)
-        printf("\t%s, #%d\t; 0x%x\n", reg_name(rd), value, value);
-    else
-        printf("\t%s, #%d\n", reg_name(rd), value);
 
     if (!check_cond(env, inst))
         return 0;
