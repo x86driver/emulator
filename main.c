@@ -12,6 +12,7 @@
 #include "env.h"
 #include "aluop.h"
 #include "function.h"
+#include "branch.h"
 
 int inst_class(uint32_t inst)
 {
@@ -29,6 +30,10 @@ int inst_class(uint32_t inst)
 
     if (bit[27] == 0 && bit[26] == 1) {
         return CLASS_LOAD_STORE;
+    }
+
+    if (bit[27] == 1 && bit[26] == 0) {
+        return CLASS_BRANCH;
     }
 
     return 0;
@@ -71,6 +76,16 @@ int load_store_class(struct CPUState *env, uint32_t inst)
     return 0;
 }
 
+int branch_class(struct CPUState *env, uint32_t inst)
+{
+    if (getbit(inst, BIT25) == 1 && getbit(inst, BIT24) == 0)
+        branch(env, inst);
+    else
+        derror("Unsupport instruction on 0x%x\n", env->pc);
+
+    return 0;
+}
+
 int main(int argc, char **argv)
 {
     int fd, c;
@@ -93,6 +108,9 @@ int main(int argc, char **argv)
             break;
         case CLASS_LOAD_STORE:
             load_store_class(env, inst);
+            break;
+        case CLASS_BRANCH:
+            branch_class(env, inst);
             break;
         default:
             printf("undefined instruction %x\n", inst);

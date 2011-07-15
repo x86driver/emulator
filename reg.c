@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include "env.h"
+#include "reg.h"
 
 char *reg_name(int reg)
 {
@@ -21,4 +22,10 @@ uint32_t get_reg(struct CPUState *env, int reg)
 void set_reg(struct CPUState *env, int reg, uint32_t val)
 {
     env->regs[reg] = val;
+}
+
+void set_pc(struct CPUState *env, uint32_t imm32)
+{
+    env->regs[REG_PC] += imm32;
+    env->pc += imm32;
 }
