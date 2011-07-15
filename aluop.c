@@ -108,8 +108,8 @@ int add_reg(struct CPUState *env, uint32_t inst)
     if (!check_cond(env, inst))
         return 0;
     sh = decode_imm_shift(type, imm5);
-    shifted = shift(env, rm, type, sh);
-    result = add_with_carry(rn, shifted, 0, env, (sflag(inst) && rd != REG_PC));
+    shifted = shift(env, get_reg(env, rm), type, sh);
+    result = add_with_carry(get_reg(env, rn), shifted, 0, env, (sflag(inst) && rd != REG_PC));
     set_reg(env, rd, result);
 
     return 0;
@@ -130,8 +130,8 @@ int cmp_reg(struct CPUState *env, uint32_t inst)
     if (!check_cond(env, inst))
         return 0;
     sh = decode_imm_shift(type, imm5);
-    shifted = shift(env, rm ,type, sh);
-    add_with_carry(rn, ~shifted, 1, env, TRUE);
+    shifted = shift(env, get_reg(env, rm) ,type, sh);
+    add_with_carry(get_reg(env, rn), ~shifted, 1, env, TRUE);
 
     return 0;
 }

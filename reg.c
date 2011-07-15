@@ -26,6 +26,6 @@ void set_reg(struct CPUState *env, int reg, uint32_t val)
 
 void set_pc(struct CPUState *env, uint32_t imm32)
 {
-    env->regs[REG_PC] += imm32;
-    env->pc += imm32;
+    env->regs[REG_PC] = imm32;
+    env->pc = imm32;
 }
