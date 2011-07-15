@@ -11,6 +11,7 @@ enum {
     COND_EQ = 0,
     COND_NE,
     COND_CS,
+    COND_CC,
     COND_MI,
     COND_PL,
     COND_VS,

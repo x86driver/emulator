@@ -81,8 +81,7 @@ uint32_t shift(struct CPUState *env, uint32_t val, uint32_t type, uint32_t imm5)
         } else {    /* rrx */
             return (val >> 1) | (env->cpsr.C << 31);
         }
-    default:
-        derror("undefined shift instruction\n");
+    default:        derror("undefined shift instruction\n");
         exit(1);
         break;
     }
@@ -115,7 +114,7 @@ int ldst_imm(struct CPUState *env, uint32_t inst)
 
     print_preamble(env, inst);
 
-    printf("%s", (L ? "ldr" : "str"));
+    print_inst_without_s((L ? "ldr" : "str"), inst);
 
     if (B)
         printf("b");
@@ -151,6 +150,8 @@ int ldst_imm(struct CPUState *env, uint32_t inst)
     }
     printf("\n");
 
+    if (!check_cond(env, inst))
+        return 0;
     /* 未驗證 */
     if (rn == REG_PC)
         offset_addr = env->pc+4;
@@ -204,7 +205,7 @@ int ldst_reg(struct CPUState *env, uint32_t inst)
         return -1;
     }
 
-    printf("%s", (L ? "ldr" : "str"));
+    print_inst((L ? "ldr" : "str"), inst);
 
     if (B)
         printf("b");
@@ -228,6 +229,8 @@ int ldst_reg(struct CPUState *env, uint32_t inst)
     }
     printf("\n");
 
+    if (!check_cond(env, inst))
+        return 0;
     offset_addr = shift(env, get_reg(env, rm), type, imm5);
 
     if (U)
