@@ -1,4 +1,8 @@
     mov r1, #1
+    cmp r0, r1
+    addeq r0, r0, r1
+/*
+    mov r1, #1
     add r0, r0, r1, lsl #2
 
 
@@ -28,5 +32,4 @@
     ldrb r5, [r10], #200
     ldrb r6, [r9, #203]
     ldrb r7, [r8, #203]!
-
-
+*/

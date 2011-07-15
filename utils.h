@@ -18,6 +18,11 @@ static inline void print_inst(const char *name, uint32_t inst)
     printf("%s%s%s", name, sflag(inst) ? "s" : "", cond_name(inst));
 }
 
+static inline void print_inst_without_s(const char *name, uint32_t inst)
+{
+    printf("%s%s", name, cond_name(inst));
+}
+
 static inline void print_inst_ldst(const char *name, uint32_t inst)
 {
     uint32_t B = getbit(inst, BIT22);

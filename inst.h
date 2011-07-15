@@ -13,6 +13,9 @@
 #define derror(str, ...)
 #endif
 
+#define TRUE 1
+#define FALSE 0
+
 enum {
     CLASS_DATA_PROCESSING,
     CLASS_LOAD_STORE,

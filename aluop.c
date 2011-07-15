@@ -115,6 +115,27 @@ int add_reg(struct CPUState *env, uint32_t inst)
     return 0;
 }
 
+int cmp_reg(struct CPUState *env, uint32_t inst)
+{
+    uint32_t rm = getrm(inst);
+    uint32_t rn = getrn(inst);
+    uint32_t type = gettype(inst);
+    uint32_t imm5 = getimm5(inst);
+    uint32_t sh, shifted;
+
+    print_preamble(env, inst);
+    print_inst_without_s("cmp", inst);
+    printf("\t%s, %s\n", reg_name(rn), reg_name(rm));
+
+    if (!check_cond(env, inst))
+        return 0;
+    sh = decode_imm_shift(type, imm5);
+    shifted = shift(env, rm ,type, sh);
+    add_with_carry(rn, ~shifted, 1, env, TRUE);
+
+    return 0;
+}
+
 int mov_imm(struct CPUState *env, uint32_t inst)
 {
     uint32_t rd = getrd(inst);
@@ -148,7 +169,7 @@ int mov_imm(struct CPUState *env, uint32_t inst)
 int (*alu_reg_op[16])(struct CPUState *, uint32_t) = {
     no_op, no_op, no_op, no_op,
     add_reg, no_op, no_op, no_op,
-    no_op, no_op, no_op, no_op,
+    no_op, no_op, cmp_reg, no_op,
     no_op, mov_reg, no_op, no_op
 };
 
