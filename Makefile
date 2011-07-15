@@ -1,9 +1,12 @@
 TARGET = emulator
-OBJ = aluop.o reg.o mem.o load_store.o function.o cond.o
+OBJ = aluop.o reg.o mem.o load_store.o function.o cond.o branch.o
 
 CFLAGS = -g
 
 all:$(TARGET)
+
+branch.o:branch.c inst.h env.h cond.h aluop.h utils.h reg.h
+	gcc -Wall -c -o $@ $< $(CFLAGS)
 
 cond.o:cond.c cond.h
 	gcc -Wall -c -o $@ $< $(CFLAGS)

@@ -19,6 +19,7 @@
 enum {
     CLASS_DATA_PROCESSING,
     CLASS_LOAD_STORE,
+    CLASS_BRANCH
 };
 
 enum {
@@ -43,6 +44,8 @@ enum {
     OP_MVN,
 };
 
+#define OFFSET_PC       4   /* must be 8 doremi */
+
 #define COND_MASK       0xf0000000
 #define COND_SHIFT      28
 
@@ -56,6 +59,7 @@ enum {
 #define RM_MASK         0x0000000f
 #define RM_SHIFT        0
 
+#define IMM24_MASK      0x00ffffff
 #define IMM12_MASK      0x00000fff
 #define IMM5_MASK       0x00000f80
 #define IMM5_SHIFT      7
@@ -126,6 +130,11 @@ static inline uint32_t getimm12(uint32_t inst)
 static inline uint32_t getimm5(uint32_t inst)
 {
     return (inst & IMM5_MASK) >> IMM5_SHIFT;
+}
+
+static inline uint32_t getimm24(uint32_t inst)
+{
+    return (inst & IMM24_MASK);
 }
 
 static inline uint32_t gettype(uint32_t inst)

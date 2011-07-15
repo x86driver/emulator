@@ -1,6 +1,9 @@
     mov r1, #1
     cmp r0, r1
-    addeq r0, r0, r1
+    beq next
+    mov r3, #3
+next:
+    mov r2, #2
 /*
     mov r1, #1
     add r0, r0, r1, lsl #2
