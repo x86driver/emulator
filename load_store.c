@@ -114,10 +114,7 @@ int ldst_imm(struct CPUState *env, uint32_t inst)
 
     print_preamble(env, inst);
 
-    print_inst_without_s((L ? "ldr" : "str"), inst);
-
-    if (B)
-        printf("b");
+    print_inst_ldst((L ? "ldr" : "str"), inst);
     printf("\t%s, [%s", reg_name(rt), reg_name(rn));
 
     if (imm12 || rn == REG_PC) {
@@ -205,10 +202,7 @@ int ldst_reg(struct CPUState *env, uint32_t inst)
         return -1;
     }
 
-    print_inst((L ? "ldr" : "str"), inst);
-
-    if (B)
-        printf("b");
+    print_inst_ldst((L ? "ldr" : "str"), inst);
     printf("\t%s, [%s", reg_name(rt), reg_name(rn));
 
     if (P) {
