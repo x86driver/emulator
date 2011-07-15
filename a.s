@@ -6,10 +6,10 @@
 
     moveqs r1, #131072
 
-    str r15, [r14], #12
-    ldr r0, [r15]
-    str r1, [r14, r3, lsr #3]!
-    ldr r13, [r15]
+    streq r15, [r14], #12
+    ldrne r0, [r15]
+    strlt r1, [r14, r3, lsr #3]!
+    ldrgt r13, [r15]
 
     str r0, [r1, #34]!
     strb r11, [r12]!

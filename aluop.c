@@ -43,14 +43,14 @@ int mov_reg(struct CPUState *env, uint32_t inst)
 
 /* implement */
 
+    if (!check_cond(env, inst))
+        return 0;
     switch (type) {
     case 0: /* mov or lsl */
         if (imm5) { /* lsl */
             printf("Unfinished lsl\n");
             exit(1);
         } else {    /* mov */
-            if (!check_cond(env, inst))
-                return 0;
             set_reg(env, rd, get_reg(env, rm));
             if (sflag(inst) && rd != REG_PC) {
                 env->cpsr.N = getbit(inst, BIT31);
@@ -130,6 +130,8 @@ int mov_imm(struct CPUState *env, uint32_t inst)
     else
         printf("\t%s, #%d\n", reg_name(rd), value);
 
+    if (!check_cond(env, inst))
+        return 0;
     set_reg(env, rd, value);
     if (sflag(inst) && rd != REG_PC) {
         env->cpsr.N = getbit(inst, BIT31);
