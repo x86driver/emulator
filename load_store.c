@@ -112,41 +112,6 @@ int ldst_imm(struct CPUState *env, uint32_t inst)
     rt = getrd(inst);
     imm12 = getimm12(inst);
 
-    print_preamble(env, inst);
-
-    print_inst_ldst((L ? "ldr" : "str"), inst);
-    printf("\t%s, [%s", reg_name(rt), reg_name(rn));
-
-    if (imm12 || rn == REG_PC) {
-        if (P) {
-            if (U)
-                printf(", #%d]", imm12);
-            else
-                printf(", #-%d]", imm12);
-        } else {
-            if (U)
-                printf("], #%d", imm12);
-            else
-                printf("], #-%d", imm12);
-        }
-    } else
-        printf("]");
-
-    if (W)
-        printf("!");
-
-    if (imm12 > 32)
-        printf("\t; 0x%x", imm12);
-    else if (rn == REG_PC) {
-        uint32_t tmpaddr = env->pc+4;
-        if (U)
-            tmpaddr += imm12;
-        else
-            tmpaddr -= imm12;
-        printf("\t; %x <.text+0x%x>", tmpaddr, tmpaddr);
-    }
-    printf("\n");
-
     if (!check_cond(env, inst))
         return 0;
     /* 未驗證 */
@@ -195,33 +160,6 @@ int ldst_reg(struct CPUState *env, uint32_t inst)
     rm = getrm(inst);
     imm5 = getimm5(inst);
     type = gettype(inst);
-
-    print_preamble(env, inst);
-    if (rm == REG_PC) {
-        printf("undefined instruction\n");
-        return -1;
-    }
-
-    print_inst_ldst((L ? "ldr" : "str"), inst);
-    printf("\t%s, [%s", reg_name(rt), reg_name(rn));
-
-    if (P) {
-        if (U)
-            printf(", %s", reg_name(rm));
-        else
-            printf(", -%s", reg_name(rm));
-        if (imm5)
-            printf(", %s #%d", shift_type(type, imm5), imm5);
-        printf("]");
-        if (W)
-            printf("!");
-    } else {
-        if (U)
-            printf("], %s", reg_name(rm));
-        else
-            printf("], -%s", reg_name(rm));
-    }
-    printf("\n");
 
     if (!check_cond(env, inst))
         return 0;
