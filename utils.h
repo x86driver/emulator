@@ -11,7 +11,6 @@
 static inline void print_preamble(struct CPUState *env, uint32_t inst)
 {
     printf("%4x:\t%08x \t", env->pc, inst);
-    env->pc += 4;
 }
 
 static inline void print_inst(const char *name, uint32_t inst)

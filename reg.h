@@ -15,5 +15,11 @@ enum {
     REG_IP, REG_SP, REG_LR, REG_PC
 };
 
+static inline void next_pc(struct CPUState *env)
+{
+    env->pc += 4;
+    env->regs[REG_PC] += 4;
+}
+
 #endif
 

@@ -13,6 +13,7 @@
 #include "aluop.h"
 #include "function.h"
 #include "branch.h"
+#include "reg.h"
 
 int inst_class(uint32_t inst)
 {
@@ -86,9 +87,15 @@ int branch_class(struct CPUState *env, uint32_t inst)
     return 0;
 }
 
+uint32_t fetch_inst(struct CPUState *env)
+{
+    return env->memory[env->pc / 4];
+}
+
 int main(int argc, char **argv)
 {
     int fd, c;
+    ssize_t ret;
     uint32_t inst;
     struct CPUState *env;
 
@@ -100,8 +107,10 @@ int main(int argc, char **argv)
     memset(env, 0, sizeof(struct CPUState));
 
     fd = open("a.bin", O_RDONLY);
+    ret = read(fd, &env->memory, 4096);
 
-    while (read(fd, &inst, 4) > 0) {
+    while (env->pc <= ret) {
+        inst = fetch_inst(env);
         switch (inst_class(inst)) {
         case CLASS_DATA_PROCESSING:
             dp_class(env, inst);
@@ -116,6 +125,7 @@ int main(int argc, char **argv)
             printf("undefined instruction %x\n", inst);
             break;
         }
+        next_pc(env);
     }
 
     close(fd);

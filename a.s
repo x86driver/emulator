@@ -1,9 +1,12 @@
-    mov r1, #1
+    mov r0, #0      /* index */
+    mov r1, #100    /* 0 ~ 100 */
+    mov r2, #1      /* increment */
+start:
+    add r3, r3, r2  /* result */
+    add r0, r0, r2  /* index++ */
+
     cmp r0, r1
-    beq next
-    mov r3, #3
-next:
-    mov r2, #2
+    bne start
 /*
     mov r1, #1
     add r0, r0, r1, lsl #2
