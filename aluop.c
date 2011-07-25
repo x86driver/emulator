@@ -21,8 +21,6 @@ int mov_reg(struct CPUState *env, uint32_t inst)
     uint32_t imm5 = getimm5(inst);
     uint32_t type = gettype(inst);
 
-    if (!check_cond(env, inst))
-        return 0;
     switch (type) {
     case 0: /* mov or lsl */
         if (imm5) { /* lsl */
@@ -74,8 +72,6 @@ int add_reg(struct CPUState *env, uint32_t inst)
     uint32_t imm5 = getimm5(inst);
     uint32_t sh, shifted, result;
 
-    if (!check_cond(env, inst))
-        return 0;
     sh = decode_imm_shift(type, imm5);
     shifted = shift(env, get_reg(env, rm), type, sh);
     result = add_with_carry(get_reg(env, rn), shifted, 0, env, (sflag(inst) && rd != REG_PC));
@@ -92,8 +88,6 @@ int cmp_reg(struct CPUState *env, uint32_t inst)
     uint32_t imm5 = getimm5(inst);
     uint32_t sh, shifted;
 
-    if (!check_cond(env, inst))
-        return 0;
     sh = decode_imm_shift(type, imm5);
     shifted = shift(env, get_reg(env, rm) ,type, sh);
     add_with_carry(get_reg(env, rn), ~shifted, 1, env, TRUE);
@@ -109,8 +103,6 @@ int mov_imm(struct CPUState *env, uint32_t inst)
     uint32_t rot = 2 * ((imm12 & 0xf00) >> 8);
     uint32_t value = shift(env, unrotated_value, TYPE_ROR, rot);
 
-    if (!check_cond(env, inst))
-        return 0;
     set_reg(env, rd, value);
     if (sflag(inst) && rd != REG_PC) {
         env->cpsr.N = getbit(inst, BIT31);

@@ -112,8 +112,6 @@ int ldst_imm(struct CPUState *env, uint32_t inst)
     rt = getrd(inst);
     imm12 = getimm12(inst);
 
-    if (!check_cond(env, inst))
-        return 0;
     /* 未驗證 */
     if (rn == REG_PC)
         offset_addr = env->pc+4;
@@ -161,8 +159,6 @@ int ldst_reg(struct CPUState *env, uint32_t inst)
     imm5 = getimm5(inst);
     type = gettype(inst);
 
-    if (!check_cond(env, inst))
-        return 0;
     offset_addr = shift(env, get_reg(env, rm), type, imm5);
 
     if (U)
