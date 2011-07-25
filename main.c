@@ -87,6 +87,24 @@ int branch_class(struct CPUState *env, uint32_t inst)
     return 0;
 }
 
+void decode_inst(struct CPUState *env, uint32_t inst)
+{
+    switch (inst_class(inst)) {
+    case CLASS_DATA_PROCESSING:
+        dp_class(env, inst);
+        break;
+    case CLASS_LOAD_STORE:
+        load_store_class(env, inst);
+        break;
+    case CLASS_BRANCH:
+        branch_class(env, inst);
+        break;
+    default:
+        printf("undefined instruction %x\n", inst);
+        break;
+    }
+}
+
 uint32_t fetch_inst(struct CPUState *env)
 {
     return env->memory[env->pc / 4];
@@ -111,20 +129,7 @@ int main(int argc, char **argv)
 
     while (env->pc <= ret) {
         inst = fetch_inst(env);
-        switch (inst_class(inst)) {
-        case CLASS_DATA_PROCESSING:
-            dp_class(env, inst);
-            break;
-        case CLASS_LOAD_STORE:
-            load_store_class(env, inst);
-            break;
-        case CLASS_BRANCH:
-            branch_class(env, inst);
-            break;
-        default:
-            printf("undefined instruction %x\n", inst);
-            break;
-        }
+        decode_inst(env, inst);
         next_pc(env);
     }
 
