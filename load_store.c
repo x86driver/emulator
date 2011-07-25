@@ -101,7 +101,7 @@ int ldst_imm(struct CPUState *env, uint32_t inst)
 {
     uint32_t P, U, B, W, L, rn, rt;
     uint32_t imm12;
-    uint32_t offset_addr, address, data;
+    uint32_t offset_addr = 0, address, data;
 
     P = getbit(inst, BIT24);
     U = getbit(inst, BIT23);
