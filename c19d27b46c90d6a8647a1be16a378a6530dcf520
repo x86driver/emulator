@@ -1,0 +1,2 @@
+在 ldst_mov
+當 if Rn == ‘1111’ then SEE LDR (literal);
