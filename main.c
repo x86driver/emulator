@@ -14,6 +14,7 @@
 #include "function.h"
 #include "branch.h"
 #include "reg.h"
+#include "disas-arm/disas.h"
 
 int inst_class(uint32_t inst)
 {
@@ -135,10 +136,13 @@ int main(int argc, char **argv)
 
     close(fd);
 
-    while ((c = getopt(argc, argv, "r")) != -1) {
+    while ((c = getopt(argc, argv, "rd")) != -1) {
         switch (c) {
         case 'r':
             dump_reg(env);
+            break;
+        case 'd':
+            disas(stdout, env->memory, ret);
             break;
         }
     }
