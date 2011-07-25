@@ -1,5 +1,5 @@
     mov r0, #0      /* index */
-    mov r1, #100    /* 0 ~ 100 */
+    mov r1, #16777216    /* 0 ~ 100 */
     mov r2, #1      /* increment */
 start:
     add r3, r3, r2  /* result */

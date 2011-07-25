@@ -90,6 +90,8 @@ int branch_class(struct CPUState *env, uint32_t inst)
 
 void decode_inst(struct CPUState *env, uint32_t inst)
 {
+    if (!check_cond(env, inst))
+        return;
     switch (inst_class(inst)) {
     case CLASS_DATA_PROCESSING:
         dp_class(env, inst);

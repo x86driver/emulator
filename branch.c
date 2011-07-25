@@ -16,8 +16,6 @@ int branch(struct CPUState *env, uint32_t inst)
 {
     uint32_t imm24;
 
-    if (!check_cond(env, inst))
-        return 0;
     imm24 = getimm24(inst);
     imm24 = sign_extend_24(imm24);
     imm24 = (imm24 << 2) + OFFSET_PC + env->pc;
