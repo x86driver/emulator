@@ -10,7 +10,7 @@ uint32_t get_mem(struct CPUState *env, uint32_t addr)
         return 0;
     }
 
-    return env->memory[addr];
+    return env->memory[addr / 4];
 }
 
 uint8_t get_mem_byte(struct CPUState *env, uint32_t addr)
