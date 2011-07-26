@@ -14,6 +14,7 @@
 #include "function.h"
 #include "branch.h"
 #include "reg.h"
+#include "mem.h"
 #include "disas-arm/disas.h"
 
 int inst_class(uint32_t inst)
@@ -110,7 +111,7 @@ void decode_inst(struct CPUState *env, uint32_t inst)
 
 uint32_t fetch_inst(struct CPUState *env)
 {
-    return env->memory[env->pc / 4];
+    return get_mem(env, env->pc);
 }
 
 int main(int argc, char **argv)
