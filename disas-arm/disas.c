@@ -56,3 +56,40 @@ generic_symbol_at_address (bfd_vma addr, struct disassemble_info *info)
 {
   return 1;
 }
+
+void target_disas(FILE *out, target_ulong code, target_ulong size, int flags)
+{
+    target_ulong pc;
+    int count;
+    struct disassemble_info disasm_info;
+    int (*print_insn)(bfd_vma pc, disassemble_info *info);
+
+    INIT_DISASSEMBLE_INFO(disasm_info, out, fprintf);
+
+    disasm_info.read_memory_func = target_read_memory;
+    disasm_info.buffer_vma = code;
+    disasm_info.buffer_length = size;
+
+#ifdef TARGET_WORDS_BIGENDIAN
+    disasm_info.endian = BFD_ENDIAN_BIG;
+#else
+    disasm_info.endian = BFD_ENDIAN_LITTLE;
+#endif
+
+	print_insn = print_insn_arm;
+
+    for (pc = code; size > 0; pc += count, size -= count) {
+	fprintf(out, "0x" TARGET_FMT_lx ":  ", pc);
+	count = print_insn(pc, &disasm_info);
+	fprintf(out, "\n");
+	if (count < 0)
+	    break;
+        if (size < count) {
+            fprintf(out,
+                    "Disassembler disagrees with translator over instruction "
+                    "decoding\n"
+                    "Please report this to qemu-devel@nongnu.org\n");
+            break;
+        }
+    }
+}
