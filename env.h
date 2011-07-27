@@ -17,4 +17,6 @@ struct CPUState {
     struct Reg_CPSR cpsr;
 };
 
+void init_cpu_state(struct CPUState *env);
+
 #endif

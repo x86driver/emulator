@@ -17,7 +17,7 @@ enum {
 
 static inline void next_pc(struct CPUState *env)
 {
-    env->pc += 4;
+    ++env->pc;
     env->regs[REG_PC] += 4;
 }
 

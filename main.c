@@ -84,7 +84,7 @@ int branch_class(struct CPUState *env, uint32_t inst)
     if (getbit(inst, BIT25) == 1 && getbit(inst, BIT24) == 0)
         branch(env, inst);
     else
-        derror("Unsupport instruction on 0x%x\n", env->pc);
+        derror("Unsupport instruction on 0x%x\n", get_reg(env, REG_PC));
 
     return 0;
 }
@@ -126,12 +126,12 @@ int main(int argc, char **argv)
         perror("malloc");
         exit(1);
     }
-    memset(env, 0, sizeof(struct CPUState));
+    init_cpu_state(env);
 
     fd = open("a.bin", O_RDONLY);
     ret = read(fd, &env->memory, 4096);
 
-    while (env->pc <= ret) {
+    while (env->pc <= ret / 4) {
         inst = fetch_inst(env);
         decode_inst(env, inst);
         next_pc(env);
