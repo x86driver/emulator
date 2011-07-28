@@ -81,10 +81,11 @@ int load_store_class(struct CPUState *env, uint32_t inst)
 
 int branch_class(struct CPUState *env, uint32_t inst)
 {
-    if (getbit(inst, BIT25) == 1 && getbit(inst, BIT24) == 0)
+    if (getbit(inst, BIT25) == 1 && getbit(inst, BIT24) == 0) {
         branch(env, inst);
-    else
+    } else {
         derror("Unsupport instruction on 0x%x\n", get_reg(env, REG_PC));
+    }
 
     return 0;
 }
@@ -111,7 +112,7 @@ void decode_inst(struct CPUState *env, uint32_t inst)
 
 uint32_t fetch_inst(struct CPUState *env)
 {
-    return get_mem(env, env->pc);
+    return get_pc_mem(env, env->pc);
 }
 
 int main(int argc, char **argv)

@@ -29,11 +29,4 @@ static inline void print_inst_ldst(const char *name, uint32_t inst)
     printf("%s%s%s", name, (B ? "b" : ""), cond_name(inst));
 }
 
-static inline void print_branch_pc(struct CPUState *env, uint32_t inst)
-{
-    uint32_t imm24 = getimm24(inst);
-    imm24 = sign_extend_24(imm24);
-    printf("%x", env->pc + (imm24 << 2) + OFFSET_PC);
-}
-
 #endif

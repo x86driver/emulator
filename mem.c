@@ -3,6 +3,17 @@
 #include "env.h"
 #include "inst.h"
 
+static inline uint32_t get_phys_mem(struct CPUState *env, uint32_t phys_addr)
+{
+    if (phys_addr >= MEM_SIZE) {
+        derror("read memory @ 0x%x failed\n", addr);
+        return 0;
+    }
+
+    return env->memory[phys_addr];
+}
+
+#if 0
 uint32_t get_virt_mem(struct CPUState *env, uint32_t virt_addr)
 {
     /* steps:
@@ -12,25 +23,23 @@ uint32_t get_virt_mem(struct CPUState *env, uint32_t virt_addr)
     uint32_t phys_addr = phys_to_virt(env, virt_addr);
     return get_phys_mem(env, phys_addr);
 }
-
-uint32_t get_phys_mem(struct CPUState *env, uint32_t phys_addr)
-{
-    
-}
+#endif
 
 uint32_t get_mem(struct CPUState *env, uint32_t addr)
 {
+#if 0
     if (env->mmu_enable)
         return get_virt_mem(env, addr);
     else
         return get_phys_mem(env, addr);
+#endif
 
-    if (addr < 0 || addr >= MEM_SIZE) {
-        derror("read memory @ 0x%x failed\n", addr);
-        return 0;
-    }
+    return get_phys_mem(env, addr/4);
+}
 
-    return env->memory[addr / 4];
+uint32_t get_pc_mem(struct CPUState *env, uint32_t pc)
+{
+    return get_phys_mem(env, pc);
 }
 
 uint8_t get_mem_byte(struct CPUState *env, uint32_t addr)
@@ -40,11 +49,11 @@ uint8_t get_mem_byte(struct CPUState *env, uint32_t addr)
 
 void set_mem(struct CPUState *env, uint32_t addr, uint32_t val)
 {
-    if (addr < 0 || addr >= MEM_SIZE) {
+    if (addr >= MEM_SIZE) {
         derror("write memory @ 0x%x failed\n", addr);
         return;
     }
-    env->memory[addr] = val;
+    env->memory[addr/4] = val;  /* doremi 未驗證 */
 }
 
 void set_mem_byte(struct CPUState *env, uint32_t addr, uint8_t val)
