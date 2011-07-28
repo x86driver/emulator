@@ -112,9 +112,6 @@ int ldst_imm(struct CPUState *env, uint32_t inst)
     rt = getrd(inst);
     imm12 = getimm12(inst);
 
-    if (rn == REG_PC)
-        offset_addr = env->pc+8;
-
     if (U)
         offset_addr += get_reg(env, rn) + imm12;
     else
@@ -125,21 +122,22 @@ int ldst_imm(struct CPUState *env, uint32_t inst)
     else
         address = get_reg(env, rn);
 
-    if (L)
+    if (L) {
         if (B)
             data = get_mem_byte(env, address);
         else
             data = get_mem(env, address);
-    else
+        set_reg(env, rt, data);
+    } else {
         if (B)
             set_mem_byte(env, address, get_reg(env, rt));
         else
             set_mem(env, address, get_reg(env, rt));
+    }
 
-    if (W || !P)
+    if (W || !P || rn != REG_PC)
         set_reg(env, rn, offset_addr);
 
-    set_reg(env, rt, data);
     return 0;
 }
 

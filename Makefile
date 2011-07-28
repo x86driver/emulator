@@ -4,7 +4,7 @@ OBJ = aluop.o reg.o mem.o load_store.o function.o cond.o branch.o env.o
 LIBDIR = disas-arm
 LIBS = disas-arm
 
-CFLAGS = -g
+CFLAGS = -g -Wextra
 
 all:$(TARGET)
 

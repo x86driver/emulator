@@ -1,12 +1,17 @@
-    mov r0, #0      /* index */
-    mov r1, #16777216    /* 0 ~ 100 */
-    mov r2, #1      /* increment */
-start:
-    add r3, r3, r2  /* result */
-    add r0, r0, r2  /* index++ */
+    ldr  r0, data
+    ldrb r1, data
+data:
+    .word 0x12345678
 
-    cmp r0, r1
-    bne start
+#    mov r0, #0      /* index */
+#    mov r1, #16777216    /* 0 ~ 100 */
+#    mov r2, #1      /* increment */
+#start:
+#    add r3, r3, r2  /* result */
+#    add r0, r0, r2  /* index++ */
+
+#    cmp r0, r1
+#    bne start
 /*
     mov r1, #1
     add r0, r0, r1, lsl #2

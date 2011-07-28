@@ -11,6 +11,9 @@
 
 int no_op(struct CPUState *env, uint32_t inst)
 {
+    /* prevent warning */
+    env = env;
+    inst = inst;
     return 0;
 }
 

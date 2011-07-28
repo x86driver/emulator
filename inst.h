@@ -44,8 +44,6 @@ enum {
     OP_MVN,
 };
 
-#define OFFSET_PC       8   /* must be 8 doremi */
-
 #define COND_MASK       0xf0000000
 #define COND_SHIFT      28
 

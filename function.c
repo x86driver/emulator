@@ -45,7 +45,7 @@ void dump_mem(unsigned char *buf, unsigned int start, unsigned int size)
 
 	for (i = start; i < start + size; ++i) {
 		if ((i % 16) == 0) {
-			int j;
+			unsigned int j;
 			printf("\033[0;30m  ");
 			for (j = i - 16; j < i; ++j) {
 				if ((j % 8) == 0 && (j % 16) != 0) printf("  ");
