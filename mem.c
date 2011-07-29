@@ -13,6 +13,13 @@ static inline uint32_t get_phys_mem(struct CPUState *env, uint32_t phys_addr)
     return env->memory[phys_addr];
 }
 
+static inline uint32_t get_phys_unaligned_mem(struct CPUState *env, uint32_t phys_addr)
+{
+    uint8_t *ptr = (uint8_t*)env->memory;
+    uint32_t data = (uint32_t)*(ptr + phys_addr);
+    return data;
+}
+
 #if 0
 uint32_t get_virt_mem(struct CPUState *env, uint32_t virt_addr)
 {
@@ -34,7 +41,11 @@ uint32_t get_mem(struct CPUState *env, uint32_t addr)
         return get_phys_mem(env, addr);
 #endif
 
-    return get_phys_mem(env, addr/4);
+    if ((addr % 4) == 0) {  /* aligned */
+        return get_phys_mem(env, addr/4);
+    } else {
+        return get_phys_unaligned_mem(env, addr);
+    }
 }
 
 uint32_t get_pc_mem(struct CPUState *env, uint32_t pc)
@@ -59,5 +70,5 @@ void set_mem(struct CPUState *env, uint32_t addr, uint32_t val)
 void set_mem_byte(struct CPUState *env, uint32_t addr, uint8_t val)
 {
     uint32_t tmp = get_mem(env, addr);
-    set_mem(env, addr, (tmp & 0xffffff00) & (val & 0x0ff));
+    set_mem(env, addr, (tmp & 0xffffff00) | (val & 0x0ff));
 }

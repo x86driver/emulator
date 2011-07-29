@@ -17,7 +17,7 @@ void dump_reg(struct CPUState *env)
     printf("cpsr.V = %d\n", env->cpsr.V);
 }
 
-void dump_mem(unsigned char *buf, unsigned int start, unsigned int size)
+void _dump_mem(unsigned char *buf, unsigned int start, unsigned int size)
 {
 	unsigned int i, count = 0;
 	printf("\033[1;31m");
@@ -78,4 +78,9 @@ void dump_mem(unsigned char *buf, unsigned int start, unsigned int size)
 		}
 	}
 	printf("\033[0;37m\n");
+}
+
+void dump_mem(uint32_t *memory, unsigned int start, unsigned int size)
+{
+    _dump_mem((unsigned char*)memory, start, size);
 }
