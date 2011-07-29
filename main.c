@@ -140,13 +140,16 @@ int main(int argc, char **argv)
 
     close(fd);
 
-    while ((c = getopt(argc, argv, "rd")) != -1) {
+    while ((c = getopt(argc, argv, "rdm")) != -1) {
         switch (c) {
         case 'r':
             dump_reg(env);
             break;
         case 'd':
             disas(stdout, env->memory, ret);
+            break;
+        case 'm':
+            dump_mem(env->memory, 0, 32);
             break;
         }
     }

@@ -1,7 +1,8 @@
-    ldr  r0, data
-    ldrb r1, data
+    ldr r0, [r1, #1]
+#    mov r1, #8
+#    strb r0, [r1, #1]
 data:
-    .word 0x12345678
+#    .word 0x12345678
 
 #    mov r0, #0      /* index */
 #    mov r1, #16777216    /* 0 ~ 100 */
