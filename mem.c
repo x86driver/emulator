@@ -15,9 +15,14 @@ static inline uint32_t get_phys_mem(struct CPUState *env, uint32_t phys_addr)
 
 static inline uint32_t get_phys_unaligned_mem(struct CPUState *env, uint32_t phys_addr)
 {
-    uint8_t *ptr = (uint8_t*)env->memory;
-    uint32_t data = (uint32_t)*(ptr + phys_addr);
-    return data;
+    uint8_t *ptr8;
+    uint32_t *ptr32;
+
+    ptr8 = (uint8_t*)env->memory;
+    ptr8 += phys_addr;
+    ptr32 = (uint32_t*)ptr8;
+
+    return *ptr32;
 }
 
 #if 0
