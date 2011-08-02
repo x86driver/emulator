@@ -3,13 +3,12 @@
 #include "env.h"
 #include "inst.h"
 
+/* Note:
+ *  1. Where to check memory address region?
+ */
+
 static inline uint32_t get_phys_mem(struct CPUState *env, uint32_t phys_addr)
 {
-    if (phys_addr >= MEM_SIZE) {
-        derror("read memory @ 0x%x failed\n", addr);
-        return 0;
-    }
-
     return env->memory[phys_addr];
 }
 
@@ -46,6 +45,11 @@ uint32_t get_mem(struct CPUState *env, uint32_t addr)
         return get_phys_mem(env, addr);
 #endif
 
+    if (addr >= MEM_SIZE) {
+        derror("read memory @ 0x%x failed\n", addr);
+        return 0;
+    }
+
     if ((addr % 4) == 0) {  /* aligned */
         return get_phys_mem(env, addr/4);
     } else {
@@ -63,12 +67,33 @@ uint8_t get_mem_byte(struct CPUState *env, uint32_t addr)
     return get_mem(env, addr) & 0x0ff;
 }
 
+static inline void set_phys_mem(struct CPUState *env, uint32_t phys_addr, uint32_t val)
+{
+    env->memory[phys_addr] = val;
+}
+
+static inline void set_phys_unaligned_mem(struct CPUState *env, uint32_t phys_addr, uint32_t val)
+{
+    uint8_t *ptr8;
+
+    ptr8 = (uint8_t*)env->memory;
+    ptr8 += phys_addr;
+    *(uint32_t*)ptr8 = val;
+}
+
 void set_mem(struct CPUState *env, uint32_t addr, uint32_t val)
 {
     if (addr >= MEM_SIZE) {
         derror("write memory @ 0x%x failed\n", addr);
         return;
     }
+
+    if ((addr % 4) == 0) {  /* aligned */
+        return set_phys_mem(env, addr/4, val);
+    } else {
+        return set_phys_unaligned_mem(env, addr, val);
+    }
+
     env->memory[addr/4] = val;  /* doremi 未驗證 */
 }
 
