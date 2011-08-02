@@ -77,7 +77,7 @@ void _dump_mem(unsigned char *buf, unsigned int start, unsigned int size)
 
 		}
 	}
-	printf("\033[0;37m\n");
+	printf("\033[0;38m\n");
 }
 
 void dump_mem(uint32_t *memory, unsigned int start, unsigned int size)
