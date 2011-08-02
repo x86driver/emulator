@@ -1,8 +1,11 @@
+    b next
+next:
     ldr r0, data
-    strb r0, [r1, #19]
+    strb r0, [r1, #39]
 #    ldr r0, [r1, #1]
-#    mov r1, #8
-#    strb r0, [r1, #1]
+    mov r1, #8
+    strb r0, [r1, #29]
+    svc #0
 data:
     .word 0x12345678
 

@@ -19,7 +19,8 @@
 enum {
     CLASS_DATA_PROCESSING,
     CLASS_LOAD_STORE,
-    CLASS_BRANCH
+    CLASS_BRANCH,
+    CLASS_SUPER
 };
 
 enum {

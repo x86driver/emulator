@@ -15,6 +15,7 @@
 #include "branch.h"
 #include "reg.h"
 #include "mem.h"
+#include "super.h"
 #include "disas-arm/disas.h"
 
 int inst_class(uint32_t inst)
@@ -37,6 +38,10 @@ int inst_class(uint32_t inst)
 
     if (bit[27] == 1 && bit[26] == 0) {
         return CLASS_BRANCH;
+    }
+
+    if (bit[27] == 1 && bit[26] == 1) {
+        return CLASS_SUPER;
     }
 
     return 0;
@@ -90,10 +95,20 @@ int branch_class(struct CPUState *env, uint32_t inst)
     return 0;
 }
 
-void decode_inst(struct CPUState *env, uint32_t inst)
+int super_class(struct CPUState *env, uint32_t inst)
 {
+    if ((inst & 0x0f000000) == 0x0f000000)
+        return svc(env, inst);
+
+    return 0;
+}
+
+int decode_inst(struct CPUState *env, uint32_t inst)
+{
+    int ret = 0;
+
     if (!check_cond(env, inst))
-        return;
+        return 0;
     switch (inst_class(inst)) {
     case CLASS_DATA_PROCESSING:
         dp_class(env, inst);
@@ -104,10 +119,15 @@ void decode_inst(struct CPUState *env, uint32_t inst)
     case CLASS_BRANCH:
         branch_class(env, inst);
         break;
+    case CLASS_SUPER:
+        ret = super_class(env, inst);
+        break;
     default:
         printf("undefined instruction %x\n", inst);
         break;
     }
+
+    return ret;
 }
 
 uint32_t fetch_inst(struct CPUState *env)
@@ -117,8 +137,8 @@ uint32_t fetch_inst(struct CPUState *env)
 
 int main(int argc, char **argv)
 {
-    int fd, c;
-    ssize_t ret;
+    int fd, c, ret;
+    ssize_t size;
     uint32_t inst;
     struct CPUState *env;
 
@@ -130,11 +150,13 @@ int main(int argc, char **argv)
     init_cpu_state(env);
 
     fd = open("a.bin", O_RDONLY);
-    ret = read(fd, &env->memory, 4096);
+    size = read(fd, &env->memory, 4096);
 
-    while (env->pc <= ret / 4) {
+    while (env->pc <= size / 4) {
         inst = fetch_inst(env);
-        decode_inst(env, inst);
+        ret = decode_inst(env, inst);
+        if (ret)
+            break;
         next_pc(env);
     }
 
@@ -146,10 +168,10 @@ int main(int argc, char **argv)
             dump_reg(env);
             break;
         case 'd':
-            disas(stdout, env->memory, ret);
+            disas(stdout, env->memory, (env->pc+1)*4);
             break;
         case 'm':
-            dump_mem(env->memory, 0, 32);
+            dump_mem(env->memory, 0, 64);
             break;
         }
     }
