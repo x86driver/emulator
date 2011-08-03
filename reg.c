@@ -21,7 +21,10 @@ uint32_t get_reg(struct CPUState *env, int reg)
 
 void set_reg(struct CPUState *env, int reg, uint32_t val)
 {
-    env->regs[reg] = val;
+    if (reg == REG_PC)
+        set_pc(env, val);
+    else
+        env->regs[reg] = val;
 }
 
 void set_pc(struct CPUState *env, uint32_t imm32)
