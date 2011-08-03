@@ -11,9 +11,7 @@
 
 int no_op(struct CPUState *env, uint32_t inst)
 {
-    /* prevent warning */
-    env = env;
-    inst = inst;
+    printf("Unsupport instrction: 0x%x @ 0x%x\n", inst, get_reg(env, REG_PC));
     return 0;
 }
 
@@ -44,6 +42,15 @@ int mov_reg(struct CPUState *env, uint32_t inst)
     }
 
     return 0;
+}
+
+uint32_t expand_imm12(struct CPUState *env, uint32_t imm12)
+{
+    uint32_t unrotated_value = (imm12 & 0xff);  /* imm12<7:0> */
+    uint32_t rot = 2 * ((imm12 & 0xf00) >> 8);
+    uint32_t value = shift(env, unrotated_value, TYPE_ROR, rot);
+
+    return value;
 }
 
 uint32_t add_with_carry(
@@ -83,6 +90,21 @@ int add_reg(struct CPUState *env, uint32_t inst)
     return 0;
 }
 
+int add_imm(struct CPUState *env, uint32_t inst)
+{
+    uint32_t rn = getrn(inst);
+    uint32_t rd = getrd(inst);
+    uint32_t imm12 = getimm12(inst);
+    uint32_t value = expand_imm12(env, imm12);
+    uint32_t result;
+    int S = !!(sflag(inst) && rd != REG_PC);
+
+    result = add_with_carry(get_reg(env, rn), value, 0, env, S);
+    set_reg(env, rd, result);
+
+    return 0;
+}
+
 int cmp_reg(struct CPUState *env, uint32_t inst)
 {
     uint32_t rm = getrm(inst);
@@ -102,9 +124,7 @@ int mov_imm(struct CPUState *env, uint32_t inst)
 {
     uint32_t rd = getrd(inst);
     uint32_t imm12 = getimm12(inst);
-    uint32_t unrotated_value = (imm12 & 0xff);  /* imm12<7:0> */
-    uint32_t rot = 2 * ((imm12 & 0xf00) >> 8);
-    uint32_t value = shift(env, unrotated_value, TYPE_ROR, rot);
+    uint32_t value = expand_imm12(env, imm12);
 
     set_reg(env, rd, value);
     if (sflag(inst) && rd != REG_PC) {
@@ -128,7 +148,7 @@ int (*alu_reg_op[16])(struct CPUState *, uint32_t) = {
 
 int (*alu_imm_op[16])(struct CPUState *, uint32_t) = {
     no_op, no_op, no_op, no_op,
-    no_op, no_op, no_op, no_op,
+    add_imm, no_op, no_op, no_op,
     no_op, no_op, no_op, no_op,
     no_op, mov_imm, no_op, no_op
 };
