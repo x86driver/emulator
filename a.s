@@ -1,3 +1,5 @@
+#    mov pc, #8
+    adr r3, show
     mov r1, #512
     adds r0, r1, #16777216
     beq show
