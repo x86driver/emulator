@@ -1,13 +1,12 @@
-    b next
-next:
-    ldr r0, data
-    strb r0, [r1, #39]
-#    ldr r0, [r1, #1]
-    mov r1, #8
-    strb r0, [r1, #29]
+    mov r1, #512
+    adds r0, r1, #16777216
+    beq show
     svc #0
-data:
-    .word 0x12345678
+show:
+    mov r3, #128
+    svc #0
+#data:
+#    .word 0x12345678
 
 #    mov r0, #0      /* index */
 #    mov r1, #16777216    /* 0 ~ 100 */
