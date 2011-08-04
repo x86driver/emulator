@@ -1,3 +1,6 @@
+    adds r0, r1, r2
+    mrs r0, cpsr
+    svc #0
 #    mov pc, #8
     adr r3, show
     mov r1, #512

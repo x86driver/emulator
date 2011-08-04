@@ -32,3 +32,17 @@ void set_pc(struct CPUState *env, uint32_t imm32)
     env->regs[REG_PC] = imm32 + 4;  /* on next_pc() will plus 4 */
     env->pc = (imm32/4)-1;
 }
+
+uint32_t get_cpsr(struct CPUState *env)
+{
+    /* FIXME: need more work for some bits */
+    uint32_t cpsr = 0;
+
+    cpsr = ((env->cpsr.N) << 31 |
+            (env->cpsr.Z) << 30 |
+            (env->cpsr.C) << 29 |
+            (env->cpsr.V) << 28
+            );
+
+    return cpsr;
+}

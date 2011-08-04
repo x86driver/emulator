@@ -16,6 +16,7 @@
 #include "reg.h"
 #include "mem.h"
 #include "super.h"
+#include "misc.h"
 #include "disas-arm/disas.h"
 
 int inst_class(uint32_t inst)
@@ -56,10 +57,14 @@ int dp_class(struct CPUState *env, uint32_t inst)
     bit[24] = getbit(inst, BIT24);
     bit[23] = getbit(inst, BIT23);
     bit[20] = getbit(inst, BIT20);
+    bit[7] = getbit(inst, BIT7);
     bit[4] = getbit(inst, BIT4);
 
     if (bit[25] == 0) { /* register */
-        if (bit[24] == 1 && bit[23] == 0 && bit[20] == 0) {
+        if (bit[24] == 1 && bit[23] == 0 && bit[20] == 0) { /* FIXME: may cause problem */
+            if (bit[7] == 0) {
+                misc_reg_inst(env, inst);
+            }
         } else if (bit[4] == 0) {
             aluop = (inst & ALU_OP_MASK) >> ALU_OP_SHIFT;
             alu_reg_op[aluop](env, inst);

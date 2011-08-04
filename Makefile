@@ -1,5 +1,5 @@
 TARGET = emulator
-OBJ = aluop.o reg.o mem.o load_store.o function.o cond.o branch.o env.o super.o
+OBJ = aluop.o reg.o mem.o load_store.o function.o cond.o branch.o env.o super.o misc.o
 
 LIBDIR = disas-arm
 LIBS = disas-arm
@@ -10,6 +10,9 @@ all:$(TARGET)
 
 disas-arm.a:
 	cd $(PWD)/disas-arm; make
+
+misc.o: misc.c misc.h env.h
+	gcc -Wall -c -o $@ $< $(CFLAGS)
 
 super.o:super.c env.h
 	gcc -Wall -c -o $@ $< $(CFLAGS)
