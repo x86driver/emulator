@@ -1,17 +1,14 @@
-    adds r0, r1, r2
-    mrs r0, cpsr
+    mov r0, #data
+    ldr r1, [r0], #4
+    ldr r2, [r0]
+    mov r0, #data2
+    ldmfa r0, {r1, r2}
+    mov r0, r0
     svc #0
-#    mov pc, #8
-    adr r3, show
-    mov r1, #512
-    adds r0, r1, #16777216
-    beq show
-    svc #0
-show:
-    mov r3, #128
-    svc #0
-#data:
-#    .word 0x12345678
+data:
+    .word 0x12345678
+    .word 0xfedcba98
+data2:
 
 #    mov r0, #0      /* index */
 #    mov r1, #16777216    /* 0 ~ 100 */
