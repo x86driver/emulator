@@ -94,7 +94,7 @@ int branch_class(struct CPUState *env, uint32_t inst)
     if (getbit(inst, BIT25) == 1 && getbit(inst, BIT24) == 0) {
         branch(env, inst);
     } else {
-        derror("Unsupport instruction on 0x%x\n", get_reg(env, REG_PC));
+        multi_ldst(env, inst);
     }
 
     return 0;

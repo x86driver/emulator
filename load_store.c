@@ -183,3 +183,68 @@ int ldst_reg(struct CPUState *env, uint32_t inst)
     return 0;
 }
 
+static inline uint32_t op_add(uint32_t addr)
+{
+    return addr + 4;
+}
+
+static inline uint32_t op_sub(uint32_t addr)
+{
+    return addr - 4;
+}
+
+static inline uint32_t cal_addr(uint32_t addr, uint32_t (*op)(uint32_t))
+{
+    return op(addr);
+}
+
+static inline uint32_t null_func(uint32_t addr, uint32_t (*op)(uint32_t))
+{
+    /* Do nothing */
+    op = op;
+    return addr;
+}
+
+int multi_ldst(struct CPUState *env, uint32_t inst)
+{
+    uint32_t P, U, S, W, L, rn, reglist;
+    uint32_t addr, i;
+    uint32_t (*op)(uint32_t);
+    uint32_t (*prefix_func)(uint32_t addr, uint32_t (*op)(uint32_t)) = null_func;
+    uint32_t (*postfix_func)(uint32_t addr, uint32_t (*op)(uint32_t)) = null_func;
+
+    P = getbit(inst, BIT24);
+    U = getbit(inst, BIT23);
+    S = getbit(inst, BIT22);
+    W = getbit(inst, BIT21);
+    L = getbit(inst, BIT20);
+    rn = getrn(inst);
+    reglist = (inst & 0x0ffff);
+    addr = get_reg(env, rn);
+
+    if (U)
+        op = op_add;
+    else
+        op = op_sub;
+
+    if (P)
+        prefix_func = cal_addr;
+    else
+        postfix_func = cal_addr;
+
+    for (i = 0; i < 16; ++i) {
+        if (reglist & 0x01) {
+            addr = prefix_func(addr, op);
+            if (L)
+                set_reg(env, i, get_mem(env, addr));
+            else
+                set_mem(env, addr, get_reg(env, i));
+            addr = postfix_func(addr, op);
+        }
+        reglist >>= 1;
+    }
+
+    if (W && !S)    /* FIXME: must check */
+        set_reg(env, rn, addr);
+    return 0;
+}
