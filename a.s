@@ -1,9 +1,6 @@
-    mov r0, #data
-    ldr r1, [r0], #4
-    ldr r2, [r0]
-    mov r0, #data2
-    ldmfa r0, {r1, r2}
-    mov r0, r0
+    mov r0, #0xf0000000
+    mov r1, #0xf0000000
+    add r2, r0, r1
     svc #0
 data:
     .word 0x12345678
