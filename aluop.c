@@ -70,7 +70,7 @@ uint32_t add_with_carry(
         env->cpsr.V = overflow;
     }
 
-    return result;
+    return usum;
 }
 
 int add_reg(struct CPUState *env, uint32_t inst)
@@ -100,6 +100,21 @@ int add_imm(struct CPUState *env, uint32_t inst)
     int S = !!(sflag(inst) && rd != REG_PC);
 
     result = add_with_carry(get_reg(env, rn), value, 0, env, S);
+    set_reg(env, rd, result);
+
+    return 0;
+}
+
+int sub_imm(struct CPUState *env, uint32_t inst)
+{
+    uint32_t rn = getrn(inst);
+    uint32_t rd = getrd(inst);
+    uint32_t imm12 = getimm12(inst);
+    uint32_t value = expand_imm12(env, imm12);
+    uint32_t result;
+    int S = !!(sflag(inst) && rd != REG_PC);
+
+    result = add_with_carry(get_reg(env, rn), ~value, 1, env, S);
     set_reg(env, rd, result);
 
     return 0;
@@ -147,7 +162,7 @@ int (*alu_reg_op[16])(struct CPUState *, uint32_t) = {
 };
 
 int (*alu_imm_op[16])(struct CPUState *, uint32_t) = {
-    no_op, no_op, no_op, no_op,
+    no_op, no_op, sub_imm, no_op,
     add_imm, no_op, no_op, no_op,
     no_op, no_op, no_op, no_op,
     no_op, mov_imm, no_op, no_op
