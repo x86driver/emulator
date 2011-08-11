@@ -105,6 +105,24 @@ int add_imm(struct CPUState *env, uint32_t inst)
     return 0;
 }
 
+int sub_reg(struct CPUState *env, uint32_t inst)
+{
+    uint32_t rd = getrd(inst);
+    uint32_t rm = getrm(inst);
+    uint32_t rn = getrn(inst);
+    uint32_t type = gettype(inst);
+    uint32_t imm5 = getimm5(inst);
+    uint32_t sh, shifted, result;
+    int S = !!(sflag(inst) && rd != REG_PC);
+
+    sh = decode_imm_shift(type, imm5);
+    shifted = shift(env, get_reg(env, rm), type, sh);
+    result = add_with_carry(get_reg(env, rn), ~shifted, 1, env, S);
+    set_reg(env, rd, result);
+
+    return 0;
+}
+
 int sub_imm(struct CPUState *env, uint32_t inst)
 {
     uint32_t rn = getrn(inst);
@@ -155,7 +173,7 @@ int mov_imm(struct CPUState *env, uint32_t inst)
 }
 
 int (*alu_reg_op[16])(struct CPUState *, uint32_t) = {
-    no_op, no_op, no_op, no_op,
+    no_op, no_op, sub_reg, no_op,
     add_reg, no_op, no_op, no_op,
     no_op, no_op, cmp_reg, no_op,
     no_op, mov_reg, no_op, no_op
