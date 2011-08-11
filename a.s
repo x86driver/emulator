@@ -1,6 +1,6 @@
     mov r0, #0xf0000000
     mov r1, #0xf0000000
-    add r2, r0, r1
+    sub r2, r0, r1, lsr #1
     svc #0
 data:
     .word 0x12345678
