@@ -193,6 +193,23 @@ int mov_imm(struct CPUState *env, uint32_t inst)
     return 0;
 }
 
+int mvn_imm(struct CPUState *env, uint32_t inst)
+{
+    uint32_t rd = getrd(inst);
+    uint32_t imm12 = getimm12(inst);
+    uint32_t carry;
+    uint32_t value = expand_imm12_C(env, imm12, &carry);
+
+    set_reg(env, rd, ~value);
+    if (sflag(inst) && rd != REG_PC) {
+        env->cpsr.N = getbit(inst, BIT31);
+        env->cpsr.Z = (rd == 0);
+        env->cpsr.C = carry;
+    }
+
+    return 0;
+}
+
 int (*alu_reg_op[16])(struct CPUState *, uint32_t) = {
     no_op, no_op, sub_reg, no_op,
     add_reg, no_op, no_op, no_op,
@@ -204,5 +221,5 @@ int (*alu_imm_op[16])(struct CPUState *, uint32_t) = {
     no_op, no_op, sub_imm, no_op,
     add_imm, no_op, no_op, no_op,
     no_op, no_op, no_op, no_op,
-    no_op, mov_imm, no_op, no_op
+    no_op, mov_imm, no_op, mvn_imm
 };
