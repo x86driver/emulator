@@ -15,7 +15,7 @@ int ldst_reg(struct CPUState *env, uint32_t inst);
 int multi_ldst(struct CPUState *env, uint32_t inst);
 
 uint32_t decode_imm_shift(uint32_t type, uint32_t imm5);
-uint32_t shift(struct CPUState *env, uint32_t val, uint32_t type, uint32_t imm5);
+uint32_t shift(struct CPUState *env, uint32_t val, uint32_t type, uint32_t imm5, int update);
 const char *shift_type(uint32_t type, uint32_t imm5);
 
 #endif

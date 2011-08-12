@@ -48,27 +48,32 @@ const char *shift_type(uint32_t type, uint32_t imm5)
     return t[type];
 }
 
-uint32_t shift(struct CPUState *env, uint32_t val, uint32_t type, uint32_t imm5)
+void do_lazy_flags(struct CPUState *env, uint32_t val, uint32_t type, uint32_t imm5)
 {
-    uint64_t ff;
+    uint64_t ff, result, val64;
     uint32_t sh;
 
+    result = 0;
     sh = imm5;
-
-    if (sh == 0)
-        return val;
+    val64 = val;
 
     switch (type) {
     case 0: /* lsl */
-        return val << sh;
+        result = val64 << sh;
+        result >>= 32;
+        if (result & 0x01)
+            env->cpsr.C = 1;
+        break;
     case 1: /* lsr */
-        return val >> sh;
+        result = val >> sh;
+        break;
     case 2: /* asr */
         if (getbit(val, BIT31) == 1) {  /* negative */
             ff = 0xffffffff00000000LL;
-            return (ff | val) >> sh;
+            result = (ff | val) >> sh;
         } else
-            return val >> sh;
+            result = val >> sh;
+        break;
     case 3:
         if (imm5) { /* ror */
             uint64_t tmpb;
@@ -77,14 +82,69 @@ uint32_t shift(struct CPUState *env, uint32_t val, uint32_t type, uint32_t imm5)
             ff >>= sh;
             val >>= sh;
             tmpb = ff & 0xffffffff;
-            return val | tmpb;
+            result = val | tmpb;
         } else {    /* rrx */
-            return (val >> 1) | (env->cpsr.C << 31);
+            result = (val >> 1) | (env->cpsr.C << 31);
         }
+        break;
     default:        derror("undefined shift instruction\n");
         exit(1);
         break;
     }
+
+
+    env->cpsr.N = getbit(result, BIT31);
+    env->cpsr.Z = (result == 0 ? 1 : 0);
+}
+
+uint32_t shift(struct CPUState *env, uint32_t val, uint32_t type, uint32_t imm5, int update)
+{
+    uint64_t ff;
+    uint32_t sh, result;
+
+    result = 0;
+    sh = imm5;
+
+    if (sh == 0)
+        return val;
+
+    switch (type) {
+    case 0: /* lsl */
+        result = val << sh;
+        break;
+    case 1: /* lsr */
+        result = val >> sh;
+        break;
+    case 2: /* asr */
+        if (getbit(val, BIT31) == 1) {  /* negative */
+            ff = 0xffffffff00000000LL;
+            result = (ff | val) >> sh;
+        } else
+            result = val >> sh;
+        break;
+    case 3:
+        if (imm5) { /* ror */
+            uint64_t tmpb;
+            ff = val;
+            ff <<= 32;
+            ff >>= sh;
+            val >>= sh;
+            tmpb = ff & 0xffffffff;
+            result = val | tmpb;
+        } else {    /* rrx */
+            result = (val >> 1) | (env->cpsr.C << 31);
+        }
+        break;
+    default:        derror("undefined shift instruction\n");
+        exit(1);
+        break;
+    }
+
+    if (update) {
+        do_lazy_flags(env, val, type, imm5);
+    }
+
+    return result;
 }
 
 /* P = 0  ldr r0, [r1], #18    ; 會更改到 r1
@@ -158,7 +218,7 @@ int ldst_reg(struct CPUState *env, uint32_t inst)
     imm5 = getimm5(inst);
     type = gettype(inst);
 
-    offset_addr = shift(env, get_reg(env, rm), type, imm5);
+    offset_addr = shift(env, get_reg(env, rm), type, imm5, 0);
 
     if (U)
         offset_addr += get_mem(env, get_reg(env, rn) + offset_addr);

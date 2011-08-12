@@ -15,6 +15,21 @@ int no_op(struct CPUState *env, uint32_t inst)
     return 0;
 }
 
+int lsl_imm(struct CPUState *env, uint32_t inst)
+{
+    uint32_t rd = getrd(inst);
+    uint32_t rm = getrm(inst);
+    uint32_t imm5 = getimm5(inst);
+    uint32_t sh, shifted;
+    int S = !!(sflag(inst) && rd != REG_PC);
+
+    sh = decode_imm_shift(TYPE_LSL, imm5);
+    shifted = shift(env, get_reg(env, rm), TYPE_LSL, sh, S);
+    set_reg(env, rd, shifted);
+
+    return 0;
+}
+
 int mov_reg(struct CPUState *env, uint32_t inst)
 {
     uint32_t rd = getrd(inst);
@@ -24,9 +39,8 @@ int mov_reg(struct CPUState *env, uint32_t inst)
 
     switch (type) {
     case 0: /* mov or lsl */
-        if (imm5) { /* lsl */
-            printf("Unfinished lsl\n");
-            exit(1);
+        if (imm5) { /* lsl (imm) */
+            lsl_imm(env, inst);
         } else {    /* mov */
             set_reg(env, rd, get_reg(env, rm));
             if (sflag(inst) && rd != REG_PC) {
@@ -48,7 +62,7 @@ uint32_t expand_imm12(struct CPUState *env, uint32_t imm12)
 {
     uint32_t unrotated_value = (imm12 & 0xff);  /* imm12<7:0> */
     uint32_t rot = 2 * ((imm12 & 0xf00) >> 8);
-    uint32_t value = shift(env, unrotated_value, TYPE_ROR, rot);
+    uint32_t value = shift(env, unrotated_value, TYPE_ROR, rot, FALSE);
 
     return value;
 }
@@ -83,7 +97,7 @@ int add_reg(struct CPUState *env, uint32_t inst)
     uint32_t sh, shifted, result;
 
     sh = decode_imm_shift(type, imm5);
-    shifted = shift(env, get_reg(env, rm), type, sh);
+    shifted = shift(env, get_reg(env, rm), type, sh, FALSE);
     result = add_with_carry(get_reg(env, rn), shifted, 0, env, (sflag(inst) && rd != REG_PC));
     set_reg(env, rd, result);
 
@@ -116,7 +130,7 @@ int sub_reg(struct CPUState *env, uint32_t inst)
     int S = !!(sflag(inst) && rd != REG_PC);
 
     sh = decode_imm_shift(type, imm5);
-    shifted = shift(env, get_reg(env, rm), type, sh);
+    shifted = shift(env, get_reg(env, rm), type, sh, FALSE);
     result = add_with_carry(get_reg(env, rn), ~shifted, 1, env, S);
     set_reg(env, rd, result);
 
@@ -147,7 +161,7 @@ int cmp_reg(struct CPUState *env, uint32_t inst)
     uint32_t sh, shifted;
 
     sh = decode_imm_shift(type, imm5);
-    shifted = shift(env, get_reg(env, rm) ,type, sh);
+    shifted = shift(env, get_reg(env, rm) ,type, sh, FALSE);
     add_with_carry(get_reg(env, rn), ~shifted, 1, env, TRUE);
 
     return 0;
