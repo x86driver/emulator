@@ -1,5 +1,5 @@
-    mov r0, #0x2
-    lsl r0, r0, #2
+    movs r0, #-16777216
+#    lsl r0, r0, #2
 #    mov r0, #0xf0000000
 #    mov r1, #0xf0000000
 #    sub r2, r0, r1, lsr #1

@@ -48,7 +48,7 @@ const char *shift_type(uint32_t type, uint32_t imm5)
     return t[type];
 }
 
-void do_lazy_flags(struct CPUState *env, uint32_t val, uint32_t type, uint32_t imm5)
+void do_lazy_flags(struct Reg_CPSR *cpsr, uint32_t val, uint32_t type, uint32_t imm5)
 {
     uint64_t ff, result, val64;
     uint32_t sh;
@@ -62,7 +62,7 @@ void do_lazy_flags(struct CPUState *env, uint32_t val, uint32_t type, uint32_t i
         result = val64 << sh;
         result >>= 32;
         if (result & 0x01)
-            env->cpsr.C = 1;
+            cpsr->C = 1;
         break;
     case 1: /* lsr */
         result = val >> sh;
@@ -84,7 +84,7 @@ void do_lazy_flags(struct CPUState *env, uint32_t val, uint32_t type, uint32_t i
             tmpb = ff & 0xffffffff;
             result = val | tmpb;
         } else {    /* rrx */
-            result = (val >> 1) | (env->cpsr.C << 31);
+            result = (val >> 1) | (cpsr->C << 31);
         }
         break;
     default:        derror("undefined shift instruction\n");
@@ -92,9 +92,8 @@ void do_lazy_flags(struct CPUState *env, uint32_t val, uint32_t type, uint32_t i
         break;
     }
 
-
-    env->cpsr.N = getbit(result, BIT31);
-    env->cpsr.Z = (result == 0 ? 1 : 0);
+    cpsr->N = getbit(result, BIT31);
+    cpsr->Z = (result == 0 ? 1 : 0);
 }
 
 uint32_t shift(struct CPUState *env, uint32_t val, uint32_t type, uint32_t imm5, int update)
@@ -141,8 +140,18 @@ uint32_t shift(struct CPUState *env, uint32_t val, uint32_t type, uint32_t imm5,
     }
 
     if (update) {
-        do_lazy_flags(env, val, type, imm5);
+        do_lazy_flags(&env->cpsr, val, type, imm5);
     }
+
+    return result;
+}
+
+uint32_t shift_C(struct CPUState *env, uint32_t val, uint32_t type, uint32_t imm5, uint32_t *carry)
+{
+    struct CPUState tmp_cpu = *env;
+    uint32_t result = shift(env, val, type, imm5, TRUE);
+    *carry = env->cpsr.C;
+    *env = tmp_cpu;
 
     return result;
 }
