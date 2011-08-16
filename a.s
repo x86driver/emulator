@@ -1,4 +1,13 @@
-    movs r0, #-1
+    b start
+func1:
+    mov r4, #7
+    mov pc, lr
+
+start:
+    bl func1
+    mov r0, #data
+    ldmia r0, {r1, r2}
+#    movs r0, #-1
 #    lsl r0, r0, #2
 #    mov r0, #0xf0000000
 #    mov r1, #0xf0000000

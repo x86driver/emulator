@@ -91,7 +91,7 @@ int load_store_class(struct CPUState *env, uint32_t inst)
 
 int branch_class(struct CPUState *env, uint32_t inst)
 {
-    if (getbit(inst, BIT25) == 1 && getbit(inst, BIT24) == 0) {
+    if (getbit(inst, BIT25) == 1) {
         branch(env, inst);
     } else {
         multi_ldst(env, inst);
