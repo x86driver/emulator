@@ -4,21 +4,39 @@
 
 static inline uint32_t getop2(uint32_t inst)
 {
-    return (inst & 0x0f0);  /* We don't shift, just check if zero or not zero */
+    return (inst & 0x0f0) >> 4;
+}
+
+int bx_reg(struct CPUState *env, uint32_t inst)
+{
+    uint32_t rm = getrm(inst);
+
+    set_reg(env, REG_PC, get_reg(env, rm));
+
+    return 0;
 }
 
 int misc_reg_inst(struct CPUState *env, uint32_t inst)
 {
     uint32_t op2 = getop2(inst);
 
-    if (op2 == 0) {
+    switch (op2) {
+    case 0:
         if (getbit(inst, BIT21) == 0) {
             mrs_reg(env, inst);
         } else {
             printf("Unsupport instruction @ 0x%x\n", get_reg(env, REG_PC));
         }
-    } else {
+        break;
+    case 1:
+        if (getbit(inst, BIT22) == 0)
+            bx_reg(env, inst);
+        else
+            printf("clz..........!!!\n");
+        break;
+    default:
         printf("Unsupport instruction @ 0x%x\n", get_reg(env, REG_PC));
+        break;
     }
 
     return 0;
