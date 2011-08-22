@@ -1,10 +1,12 @@
-    b start
+    mov r8, #start
+    bx r8
 func1:
     mov r4, #7
     mov pc, lr
 
 start:
-    bl func1
+    mov r0, #func1
+#    bl func1
     mov r0, #data
     ldmia r0, {r1, r2}
 #    movs r0, #-1
