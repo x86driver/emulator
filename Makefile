@@ -11,7 +11,7 @@ all:$(TARGET)
 disas-arm.a:
 	cd $(PWD)/disas-arm; make
 
-misc.o: misc.c misc.h env.h
+misc.o: misc.c inst.h env.h cond.h aluop.h reg.h misc.h branch.h
 	gcc -Wall -c -o $@ $< $(CFLAGS)
 
 super.o:super.c env.h

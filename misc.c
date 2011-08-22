@@ -1,6 +1,7 @@
 #include "inst.h"
 #include "reg.h"
 #include "misc.h"
+#include "branch.h"
 
 static inline uint32_t getop2(uint32_t inst)
 {
@@ -11,7 +12,7 @@ int bx_reg(struct CPUState *env, uint32_t inst)
 {
     uint32_t rm = getrm(inst);
 
-    set_reg(env, REG_PC, get_reg(env, rm));
+    set_pc(env, get_reg(env, rm));
 
     return 0;
 }
@@ -23,6 +24,16 @@ int clz_reg(struct CPUState *env, uint32_t inst)
     uint32_t bits = __builtin_clz(get_reg(env, rm));
 
     set_reg(env, rd, bits);
+
+    return 0;
+}
+
+int blx_reg(struct CPUState *env, uint32_t inst)
+{
+    uint32_t rm = getrm(inst);
+
+    set_reg(env, REG_LR, get_reg(env, REG_PC) - BRANCH_PC_OFFSET);
+    set_pc(env, get_reg(env, rm));
 
     return 0;
 }
@@ -44,6 +55,9 @@ int misc_reg_inst(struct CPUState *env, uint32_t inst)
             bx_reg(env, inst);
         else
             clz_reg(env, inst);
+        break;
+    case 3:
+        blx_reg(env, inst);
         break;
     default:
         printf("Unsupport instruction @ 0x%x\n", get_reg(env, REG_PC));

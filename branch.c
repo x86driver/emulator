@@ -5,8 +5,6 @@
 #include "utils.h"
 #include "reg.h"
 
-#define BRANCH_PC_OFFSET    4
-
 uint32_t sign_extend_24(uint32_t imm24)
 {
     if (imm24 & 0x00800000)

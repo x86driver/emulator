@@ -7,7 +7,9 @@ func1:
 start:
     mov r0, #data
     ldmia r0, {r1, r2}
-    clz r0, r2
+    mov r3, #func1
+    blx r3
+    clz r0, r1
 #    movs r0, #-1
 #    lsl r0, r0, #2
 #    mov r0, #0xf0000000
