@@ -5,10 +5,9 @@ func1:
     mov pc, lr
 
 start:
-    mov r0, #func1
-#    bl func1
     mov r0, #data
     ldmia r0, {r1, r2}
+    clz r0, r2
 #    movs r0, #-1
 #    lsl r0, r0, #2
 #    mov r0, #0xf0000000
