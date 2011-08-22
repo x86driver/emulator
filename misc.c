@@ -16,6 +16,17 @@ int bx_reg(struct CPUState *env, uint32_t inst)
     return 0;
 }
 
+int clz_reg(struct CPUState *env, uint32_t inst)
+{
+    uint32_t rd = getrd(inst);
+    uint32_t rm = getrm(inst);
+    uint32_t bits = __builtin_clz(get_reg(env, rm));
+
+    set_reg(env, rd, bits);
+
+    return 0;
+}
+
 int misc_reg_inst(struct CPUState *env, uint32_t inst)
 {
     uint32_t op2 = getop2(inst);
@@ -32,7 +43,7 @@ int misc_reg_inst(struct CPUState *env, uint32_t inst)
         if (getbit(inst, BIT22) == 0)
             bx_reg(env, inst);
         else
-            printf("clz..........!!!\n");
+            clz_reg(env, inst);
         break;
     default:
         printf("Unsupport instruction @ 0x%x\n", get_reg(env, REG_PC));
