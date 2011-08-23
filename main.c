@@ -68,6 +68,9 @@ int dp_class(struct CPUState *env, uint32_t inst)
         } else if (bit[4] == 0) {
             aluop = (inst & ALU_OP_MASK) >> ALU_OP_SHIFT;
             alu_reg_op[aluop](env, inst);
+        } else if ((inst & 0x90) == 0x10) {
+            aluop = (inst & ALU_OP_MASK) >> ALU_OP_SHIFT;
+            alu_shift_op[aluop](env, inst);
         }
     } else {    /* immediate */
         if (bit[24] == 1 && bit[23] == 0 && bit[20] == 0) {

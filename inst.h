@@ -57,6 +57,8 @@ enum {
 #define RN_SHIFT        16
 #define RM_MASK         0x0000000f
 #define RM_SHIFT        0
+#define RS_MASK         0x00000f00
+#define RS_SHIFT        8
 
 #define IMM24_MASK      0x00ffffff
 #define IMM12_MASK      0x00000fff
@@ -119,6 +121,11 @@ static inline uint32_t getrm(uint32_t inst)
 static inline uint32_t getrn(uint32_t inst)
 {
     return (inst & RN_MASK) >> RN_SHIFT;
+}
+
+static inline uint32_t getrs(uint32_t inst)
+{
+    return (inst & RS_MASK) >> RS_SHIFT;
 }
 
 static inline uint32_t getimm12(uint32_t inst)

@@ -11,7 +11,7 @@
 
 int no_op(struct CPUState *env, uint32_t inst)
 {
-    printf("Unsupport instrction: 0x%x @ 0x%x\n", inst, get_reg(env, REG_PC));
+    printf("Unsupport instruction: 0x%x @ 0x%x\n", inst, get_reg(env, REG_PC));
     return 0;
 }
 
@@ -210,6 +210,22 @@ int mvn_imm(struct CPUState *env, uint32_t inst)
     return 0;
 }
 
+int add_shift(struct CPUState *env, uint32_t inst)
+{
+    uint32_t rd = getrd(inst);
+    uint32_t rm = getrm(inst);
+    uint32_t rn = getrn(inst);
+    uint32_t rs = getrs(inst);
+    uint32_t type = gettype(inst);
+    uint32_t shifted, result;
+
+    shifted = shift(env, get_reg(env, rm), type, get_reg(env, rs), FALSE);
+    result = add_with_carry(get_reg(env, rn), shifted, 0, env, (sflag(inst)));
+    set_reg(env, rd, result);
+
+    return 0;
+}
+
 int (*alu_reg_op[16])(struct CPUState *, uint32_t) = {
     no_op, no_op, sub_reg, no_op,
     add_reg, no_op, no_op, no_op,
@@ -222,4 +238,11 @@ int (*alu_imm_op[16])(struct CPUState *, uint32_t) = {
     add_imm, no_op, no_op, no_op,
     no_op, no_op, no_op, no_op,
     no_op, mov_imm, no_op, mvn_imm
+};
+
+int (*alu_shift_op[16])(struct CPUState *, uint32_t) = {
+    no_op, no_op, no_op, no_op,
+    add_shift, no_op, no_op, no_op,
+    no_op, no_op, no_op, no_op,
+    no_op, no_op, no_op, no_op
 };

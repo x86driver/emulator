@@ -10,6 +10,8 @@ start:
     mov r3, #func1
     blx r3
     clz r0, r1
+    mov r3, #2
+    adds r0, r1, r2, asr r3
 #    movs r0, #-1
 #    lsl r0, r0, #2
 #    mov r0, #0xf0000000
@@ -17,8 +19,8 @@ start:
 #    sub r2, r0, r1, lsr #1
     svc #0
 data:
-    .word 0x12345678
-    .word 0xfedcba98
+    .word 0xf2345678
+    .word 0xfedcba99
 data2:
 
 #    mov r0, #0      /* index */
