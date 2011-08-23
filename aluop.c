@@ -42,10 +42,11 @@ int mov_reg(struct CPUState *env, uint32_t inst)
         if (imm5) { /* lsl (imm) */
             lsl_imm(env, inst);
         } else {    /* mov */
-            set_reg(env, rd, get_reg(env, rm));
+            uint32_t value = get_reg(env, rm);
+            set_reg(env, rd, value);
             if (sflag(inst) && rd != REG_PC) {
-                env->cpsr.N = getbit(inst, BIT31);
-                env->cpsr.Z = (rm == 0);
+                env->cpsr.N = getbit(value, BIT31);
+                env->cpsr.Z = (value == 0);
 
             }
         }
@@ -185,8 +186,8 @@ int mov_imm(struct CPUState *env, uint32_t inst)
 
     set_reg(env, rd, value);
     if (sflag(inst) && rd != REG_PC) {
-        env->cpsr.N = getbit(inst, BIT31);
-        env->cpsr.Z = (rd == 0);
+        env->cpsr.N = getbit(value, BIT31);
+        env->cpsr.Z = (value == 0);
         env->cpsr.C = carry;
     }
 
@@ -204,7 +205,7 @@ int bic_imm(struct CPUState *env, uint32_t inst)
 
     set_reg(env, rd, result);
     if (sflag(inst) && rd != REG_PC) {
-        env->cpsr.N = getbit(inst, BIT31);
+        env->cpsr.N = getbit(result, BIT31);
         env->cpsr.Z = (result == 0);
         env->cpsr.C = carry;
     }
@@ -218,11 +219,12 @@ int mvn_imm(struct CPUState *env, uint32_t inst)
     uint32_t imm12 = getimm12(inst);
     uint32_t carry;
     uint32_t value = expand_imm12_C(env, imm12, &carry);
+    uint32_t result = ~value;
 
-    set_reg(env, rd, ~value);
+    set_reg(env, rd, result);
     if (sflag(inst) && rd != REG_PC) {
-        env->cpsr.N = getbit(inst, BIT31);
-        env->cpsr.Z = (rd == 0);
+        env->cpsr.N = getbit(result, BIT31);
+        env->cpsr.Z = (result == 0);
         env->cpsr.C = carry;
     }
 
