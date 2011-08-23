@@ -6,6 +6,7 @@
 
 extern int (*alu_reg_op[16])(struct CPUState *, uint32_t);
 extern int (*alu_imm_op[16])(struct CPUState *, uint32_t);
+extern int (*alu_shift_op[16])(struct CPUState *, uint32_t);
 
 #endif
 
