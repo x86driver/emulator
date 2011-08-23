@@ -14,6 +14,8 @@ start:
     adds r0, r1, r2, asr r3
     mov r0, #0xff
     bics r1, r0, #0xff
+    mov r1, #1
+    movs r0, r1
 #    movs r0, #-1
 #    lsl r0, r0, #2
 #    mov r0, #0xf0000000
