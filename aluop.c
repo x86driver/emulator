@@ -177,6 +177,29 @@ int cmp_reg(struct CPUState *env, uint32_t inst)
     return 0;
 }
 
+int bic_reg(struct CPUState *env, uint32_t inst)
+{
+    uint32_t rm = getrm(inst);
+    uint32_t rn = getrn(inst);
+    uint32_t rd = getrd(inst);
+    uint32_t type = gettype(inst);
+    uint32_t imm5 = getimm5(inst);
+    uint32_t sh, shifted, carry, result;
+
+    sh = decode_imm_shift(type, imm5);
+    shifted = shift_C(env, get_reg(env, rm) ,type, sh, &carry);
+    result = (get_reg(env, rn) & (~shifted));
+    set_reg(env, rd, result);
+
+    if (sflag(inst) && rd != REG_PC) {
+        env->cpsr.N = getbit(result, BIT31);
+        env->cpsr.Z = (result == 0);
+        env->cpsr.C = carry;
+    }
+
+    return 0;
+}
+
 int mov_imm(struct CPUState *env, uint32_t inst)
 {
     uint32_t rd = getrd(inst);
@@ -251,7 +274,7 @@ int (*alu_reg_op[16])(struct CPUState *, uint32_t) = {
     no_op, no_op, sub_reg, no_op,
     add_reg, no_op, no_op, no_op,
     no_op, no_op, cmp_reg, no_op,
-    no_op, mov_reg, no_op, no_op
+    no_op, mov_reg, bic_reg, no_op
 };
 
 int (*alu_imm_op[16])(struct CPUState *, uint32_t) = {
