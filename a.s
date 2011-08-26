@@ -11,7 +11,7 @@ start:
     blx r3
     clz r0, r1
     mov r3, #0xf0
-    bic r0, r2, r3, ror #5
+    ands r0, r1, r2, lsl #2
 #    movs r0, #-1
 #    lsl r0, r0, #2
 #    mov r0, #0xf0000000
