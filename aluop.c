@@ -131,7 +131,7 @@ int eor_reg(struct CPUState *env, uint32_t inst)
 
     sh = decode_imm_shift(type, imm5);
     shifted = shift_C(env, get_reg(env, rm), type, sh, &carry);
-    result = get_reg(env, rn) | shifted;
+    result = get_reg(env, rn) ^ shifted;
     set_reg(env, rd, result);
 
     if (sflag(inst) && rd != REG_PC) {
@@ -287,6 +287,25 @@ int and_imm(struct CPUState *env, uint32_t inst)
     return 0;
 }
 
+int eor_imm(struct CPUState *env, uint32_t inst)
+{
+    uint32_t rn = getrn(inst);
+    uint32_t rd = getrd(inst);
+    uint32_t imm12 = getimm12(inst);
+    uint32_t carry;
+    uint32_t value = expand_imm12_C(env, imm12, &carry);
+    uint32_t result = (get_reg(env, rn) ^ (value));
+
+    set_reg(env, rd, result);
+    if (sflag(inst) && rd != REG_PC) {
+        env->cpsr.N = getbit(result, BIT31);
+        env->cpsr.Z = (result == 0);
+        env->cpsr.C = carry;
+    }
+
+    return 0;
+}
+
 int mov_imm(struct CPUState *env, uint32_t inst)
 {
     uint32_t rd = getrd(inst);
@@ -365,7 +384,7 @@ int (*alu_reg_op[16])(struct CPUState *, uint32_t) = {
 };
 
 int (*alu_imm_op[16])(struct CPUState *, uint32_t) = {
-    and_imm, no_op, sub_imm, no_op,
+    and_imm, eor_imm, sub_imm, no_op,
     add_imm, no_op, no_op, no_op,
     no_op, no_op, no_op, no_op,
     no_op, mov_imm, bic_imm, mvn_imm
