@@ -21,7 +21,7 @@ struct Reg_PSR {
 
 struct CPUState {
     uint32_t regs[REG_NUM];
-    uint32_t memory[MEM_SIZE];
+    uint32_t *memory;
     uint32_t pc;
     int mode;
     struct Reg_CPSR cpsr;
@@ -29,6 +29,7 @@ struct CPUState {
 };
 
 void init_cpu_state(struct CPUState *env);
+void clean_cpu_state(struct CPUState *env);
 
 static inline int get_mode(struct CPUState *env)
 {
