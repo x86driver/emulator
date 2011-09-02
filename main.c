@@ -157,10 +157,13 @@ int main(int argc, char **argv)
     }
     init_cpu_state(env);
 
-    fd = open("a.bin", O_RDONLY);
-    size = read(fd, &env->memory, 4096);
+    fd = open("arm/hello", O_RDONLY);
+    size = read(fd, env->memory+0x8000, 4096);
+    set_pc(env, 0x80dc);
 
-    while (env->pc <= size / 4) {
+    printf("0x%x\n", env->pc);
+
+    while (1) {
         inst = fetch_inst(env);
         ret = decode_inst(env, inst);
         if (ret)
@@ -183,5 +186,8 @@ int main(int argc, char **argv)
             break;
         }
     }
+
+    clean_cpu_state(env);
+
     return 0;
 }
