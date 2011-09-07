@@ -35,10 +35,10 @@ aluop.o:aluop.c inst.h env.h cond.h aluop.h reg.h load_store.h utils.h
 reg.o:reg.c reg.h
 	gcc -Wall -c -o $@ $< $(CFLAGS)
 
-mem.o:mem.c mem.h
+mem.o:mem.c mem.h env.h inst.h cond.h aluop.h
 	gcc -Wall -c -o $@ $< $(CFLAGS)
 
-load_store.o:load_store.c inst.h env.h cond.h aluop.h mem.h reg.h utils.h
+load_store.o:load_store.c inst.h env.h cond.h aluop.h mem.h reg.h utils.h branch.h
 	gcc -Wall -c -o $@ $< $(CFLAGS)
 
 emulator:$(OBJ) main.c inst.h env.h

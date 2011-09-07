@@ -26,14 +26,23 @@ void htoa(char *buf, unsigned int num)
 
 #endif
 
-void mywrite(char *buf, size_t len)
+void __attribute__((noinline)) mywrite(char *buf, size_t len)
 {
+#if 1
     asm volatile("mov r0, #1\n\t"
                  "mov r1, %0\n\t"
                  "mov r2, %1\n\t"
                  "mov r7, #4\n\t"
                  "svc #0\n\t"
                  ::"r"(buf), "r"(len):"r7");
+#endif
+#if 0
+    asm volatile("mov r2, r1\n\t"
+                 "mov r1, r0\n\t"
+                 "mov r0, #1\n\t"
+                 "mov r7, #4\n\t"
+                 "svc #0\n\t":::"r7");
+#endif
 }
 
 static inline void myexit(int status)

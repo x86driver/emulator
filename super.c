@@ -14,14 +14,15 @@ int svc_write(struct CPUState *env)
      * r1: buffer
      * r2: length
      */
-/*
-    uint32_t *ptr = (uint32_t*)get_reg(env, REG_R1);
+
+    uint32_t offset = get_reg(env, REG_R1);
+    char *ptr = (char*)env->memory + offset;
     int len = get_reg(env, REG_R2);
 
     while (len--) {
-        putc(*buf++, stdout);
+        putc(*ptr++, stdout);
     }
-*/
+
     return 0;
 }
 
