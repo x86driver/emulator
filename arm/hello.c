@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#if 0
+#if 1
 void htoa(char *buf, unsigned int num)
 {
     int i;
@@ -55,7 +55,7 @@ static inline void myexit(int status)
 
 int main()
 {
-/*
+
     char buf[16] = "";
     int a = 3;
     int b = 7;
@@ -63,9 +63,11 @@ int main()
 
     c = 0xffffeeee;
     htoa(buf, c);
-*/
-    char buf[] = "Hello world\n";
-    mywrite(buf, sizeof(buf));
+
+//    char buf[] = "Hello world\n";
+    buf[10] = '\n';
+    buf[11] = '\0';
+    mywrite(buf, 12);
 
     myexit(0);
 }

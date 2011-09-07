@@ -15,16 +15,18 @@ int no_op(struct CPUState *env, uint32_t inst)
     return 0;
 }
 
-int lsl_imm(struct CPUState *env, uint32_t inst)
+int shift_imm(struct CPUState *env, uint32_t inst)
 {
     uint32_t rd = getrd(inst);
     uint32_t rm = getrm(inst);
     uint32_t imm5 = getimm5(inst);
+    uint32_t type = gettype(inst);
+
     uint32_t sh, shifted;
     int S = !!(sflag(inst) && rd != REG_PC);
 
-    sh = decode_imm_shift(TYPE_LSL, imm5);
-    shifted = shift(env, get_reg(env, rm), TYPE_LSL, sh, S);
+    sh = decode_imm_shift(type, imm5);
+    shifted = shift(env, get_reg(env, rm), type, sh, S);
     set_reg(env, rd, shifted);
 
     return 0;
@@ -37,23 +39,15 @@ int mov_reg(struct CPUState *env, uint32_t inst)
     uint32_t imm5 = getimm5(inst);
     uint32_t type = gettype(inst);
 
-    switch (type) {
-    case 0: /* mov or lsl */
-        if (imm5) { /* lsl (imm) */
-            lsl_imm(env, inst);
-        } else {    /* mov */
-            uint32_t value = get_reg(env, rm);
-            set_reg(env, rd, value);
-            if (sflag(inst) && rd != REG_PC) {
-                env->cpsr.N = getbit(value, BIT31);
-                env->cpsr.Z = (value == 0);
-
-            }
+    if (type == 0 && imm5 == 0) {
+        uint32_t value = get_reg(env, rm);
+        set_reg(env, rd, value);
+        if (sflag(inst) && rd != REG_PC) {
+            env->cpsr.N = getbit(value, BIT31);
+            env->cpsr.Z = (value == 0);
         }
-        break;
-    default:
-        printf("Unfinished mov shift\n");
-        exit(1);
+    } else {
+        shift_imm(env, inst);
     }
 
     return 0;
@@ -306,6 +300,17 @@ int eor_imm(struct CPUState *env, uint32_t inst)
     return 0;
 }
 
+int cmp_imm(struct CPUState *env, uint32_t inst)
+{
+    uint32_t rn = getrn(inst);
+    uint32_t imm12 = getimm12(inst);
+    uint32_t value = expand_imm12(env, imm12);
+
+    add_with_carry(get_reg(env, rn), ~value, 1, env, TRUE);
+
+    return 0;
+}
+
 int mov_imm(struct CPUState *env, uint32_t inst)
 {
     uint32_t rd = getrd(inst);
@@ -386,7 +391,7 @@ int (*alu_reg_op[16])(struct CPUState *, uint32_t) = {
 int (*alu_imm_op[16])(struct CPUState *, uint32_t) = {
     and_imm, eor_imm, sub_imm, no_op,
     add_imm, no_op, no_op, no_op,
-    no_op, no_op, no_op, no_op,
+    no_op, no_op, cmp_imm, no_op,
     no_op, mov_imm, bic_imm, mvn_imm
 };
 

@@ -157,12 +157,19 @@ int main(int argc, char **argv)
     }
     init_cpu_state(env);
 
+#if 1
     fd = open("arm/hello", O_RDONLY);
     size = read(fd, env->memory+(0x8000/4), 4096);
     uint32_t entry = get_mem(env, 0x8018);
     printf("Entry point: 0x%x\n", entry);
     set_pc(env, entry+4);
     set_reg(env, REG_SP, 0x4007f2c8);
+#endif
+
+#if 0
+    fd = open("a.bin", O_RDONLY);
+    size = read(fd, env->memory, 4096);
+#endif
 
     while (1) {
         inst = fetch_inst(env);

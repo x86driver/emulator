@@ -12,11 +12,15 @@ start:
     clz r0, r1
     mov r3, #0xf0
     eors r0, r4, #0x7
+    rors r0, r2, #3
+    mov r0, r1
 #    movs r0, #-1
 #    lsl r0, r0, #2
 #    mov r0, #0xf0000000
 #    mov r1, #0xf0000000
 #    sub r2, r0, r1, lsr #1
+end:
+    mov r7, #1
     svc #0
 data:
     .word 0xf2345678
