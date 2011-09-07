@@ -4,7 +4,6 @@
 #include <stdint.h>
 
 #define REG_NUM 16  /* r0-r15 */
-#define MEM_SIZE 4096
 
 enum {
     MODE_USR = 0,

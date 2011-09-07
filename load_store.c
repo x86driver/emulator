@@ -204,7 +204,7 @@ int ldst_imm(struct CPUState *env, uint32_t inst)
             set_mem(env, address, get_reg(env, rt));
     }
 
-    if (W || !P || rn != REG_PC)
+    if ((W || !P) && rn != REG_PC)
         set_reg(env, rn, offset_addr);
 
     return 0;

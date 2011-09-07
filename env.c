@@ -10,7 +10,7 @@ void init_cpu_state(struct CPUState *env)
 {
     env->memory = mmap(NULL, MEMORY_SIZE, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
     if (env->memory == MAP_FAILED)
-        perror("mmap");
+       perror("mmap");
     set_pc(env, 4); /* set_pc() will plus 4 automatically */
 }
 

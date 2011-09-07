@@ -158,10 +158,11 @@ int main(int argc, char **argv)
     init_cpu_state(env);
 
     fd = open("arm/hello", O_RDONLY);
-    size = read(fd, env->memory+0x8000, 4096);
-    set_pc(env, 0x80dc);
-
-    printf("0x%x\n", env->pc);
+    size = read(fd, env->memory+(0x8000/4), 4096);
+    uint32_t entry = get_mem(env, 0x8018);
+    printf("Entry point: 0x%x\n", entry);
+    set_pc(env, entry+4);
+    set_reg(env, REG_SP, 0x4007f2c8);
 
     while (1) {
         inst = fetch_inst(env);

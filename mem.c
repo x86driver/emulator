@@ -45,11 +45,6 @@ uint32_t get_mem(struct CPUState *env, uint32_t addr)
         return get_phys_mem(env, addr);
 #endif
 
-    if (addr >= MEM_SIZE) {
-        derror("read memory @ 0x%x failed\n", addr);
-        return 0;
-    }
-
     if ((addr % 4) == 0) {  /* aligned */
         return get_phys_mem(env, addr/4);
     } else {
@@ -83,11 +78,6 @@ static inline void set_phys_unaligned_mem(struct CPUState *env, uint32_t phys_ad
 
 void set_mem(struct CPUState *env, uint32_t addr, uint32_t val)
 {
-    if (addr >= MEM_SIZE) {
-        derror("write memory @ 0x%x failed\n", addr);
-        return;
-    }
-
     if ((addr % 4) == 0) {  /* aligned */
         return set_phys_mem(env, addr/4, val);
     } else {
