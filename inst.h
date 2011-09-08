@@ -45,6 +45,10 @@ enum {
     OP_MVN,
 };
 
+#define DUMP_REG        0x00000001
+#define DUMP_CODE       0x00000010
+#define DUMP_MEM        0x00000100
+
 #define COND_MASK       0xf0000000
 #define COND_SHIFT      28
 

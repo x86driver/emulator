@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/mman.h>
 #include "inst.h"
 #include "load_store.h"
 #include "env.h"
@@ -143,12 +144,54 @@ uint32_t fetch_inst(struct CPUState *env)
     return get_pc_mem(env, env->pc);
 }
 
+int check_elf(const char *ptr)
+{
+    if (ptr[1] == 'E' && ptr[2] == 'L' && ptr[3] == 'F')
+        return 1;
+    else
+        return 0;
+}
+
+int parse_file(struct CPUState *env, const char *file_name)
+{
+    char *ptr;
+    struct stat st;
+    int fd = open(file_name, O_RDONLY);
+    if (fd == -1) {
+        perror("open");
+        return -1;
+    }
+
+    fstat(fd, &st);
+    ptr = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+    if (ptr == MAP_FAILED) {
+        perror("mmap");
+        close(fd);
+        return -2;
+    }
+
+    if (check_elf(ptr)) {   /* ELF file */
+        memcpy(env->memory+(0x8000/4), ptr, st.st_size);
+        uint32_t entry = get_mem(env, 0x8018);
+        printf("Entry point: 0x%x\n", entry);
+        set_pc(env, entry+4);
+        set_reg(env, REG_SP, 0x4007f2c8);
+    } else {    /* raw file */
+        memcpy(env->memory, ptr, st.st_size);
+    }
+
+    munmap(ptr, st.st_size);
+    close(fd);
+    return 0;
+}
+
 int main(int argc, char **argv)
 {
-    int fd, c, ret;
-    ssize_t size;
+    int c, ret;
     uint32_t inst;
+    uint32_t dump_flag = 0;
     struct CPUState *env;
+    char *file_name = NULL;
 
     env = malloc(sizeof(struct CPUState));
     if (!env) {
@@ -157,19 +200,30 @@ int main(int argc, char **argv)
     }
     init_cpu_state(env);
 
-#if 1
-    fd = open("arm/hello", O_RDONLY);
-    size = read(fd, env->memory+(0x8000/4), 4096);
-    uint32_t entry = get_mem(env, 0x8018);
-    printf("Entry point: 0x%x\n", entry);
-    set_pc(env, entry+4);
-    set_reg(env, REG_SP, 0x4007f2c8);
-#endif
+    while ((c = getopt(argc, argv, "rdmf:")) != -1) {
+        switch (c) {
+        case 'r':
+            dump_flag |= DUMP_REG;
+            break;
+        case 'd':
+            dump_flag |= DUMP_CODE;
+            break;
+        case 'm':
+            dump_flag |= DUMP_MEM;
+            break;
+        case 'f':
+            file_name = optarg;
+            break;
+        }
+    }
 
-#if 0
-    fd = open("a.bin", O_RDONLY);
-    size = read(fd, env->memory, 4096);
-#endif
+    if (file_name == NULL) {
+        printf("No input file, use default a.bin\n");
+        file_name = "a.bin";
+    }
+
+    printf("Open file: %s\n", file_name);
+    parse_file(env, file_name);
 
     while (1) {
         inst = fetch_inst(env);
@@ -179,23 +233,15 @@ int main(int argc, char **argv)
         next_pc(env);
     }
 
-    close(fd);
-
-    while ((c = getopt(argc, argv, "rdm")) != -1) {
-        switch (c) {
-        case 'r':
-            dump_reg(env);
-            break;
-        case 'd':
-            disas(stdout, env->memory, (env->pc+1)*4);
-            break;
-        case 'm':
-            dump_mem(env->memory, 0, 64);
-            break;
-        }
-    }
+    if (dump_flag & DUMP_CODE)
+        disas(stdout, env->memory, (env->pc+1)*4);
+    if (dump_flag & DUMP_REG)
+        dump_reg(env);
+    if (dump_flag & DUMP_MEM)
+        dump_mem(env->memory, 0, 64);
 
     clean_cpu_state(env);
+    free(env);
 
     return 0;
 }
