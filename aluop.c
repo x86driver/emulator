@@ -304,14 +304,18 @@ int cmp_imm(struct CPUState *env, uint32_t inst)
 {
     uint32_t rn = getrn(inst);
     uint32_t imm12 = getimm12(inst);
-    uint32_t value = expand_imm12(env, imm12);
-    uint32_t x = get_reg(env, rn);
+    int32_t value = expand_imm12(env, imm12);
+    int32_t x = get_reg(env, rn);
 
-    add_with_carry(x, ~value, 1, env, TRUE);
-    if (x >= value) {
+    env->cpsr.N = env->cpsr.Z = env->cpsr.C = env->cpsr.V = 0;
+
+    if (x == value) {
+        env->cpsr.Z = 1;
         env->cpsr.C = 1;
-    } else {
-//        env->cpsr.V = 1;  doremi FIXME
+    } else if (x < value) {
+        env->cpsr.N = 1;
+    } else if (x > value) {
+        env->cpsr.C = 1;
     }
 
     return 0;

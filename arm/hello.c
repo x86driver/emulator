@@ -61,8 +61,11 @@ int main()
     int b = 7;
     int c = a + b;
 
-    c = 0xffffeeee;
-    htoa(buf, c);
+    int i = 0, sum = 0;
+    for (i = 0; i < 10000000; ++i)
+        sum += i;
+//    c = 0xffffeeee;
+    htoa(buf, sum);
 
 //    char buf[] = "Hello world\n";
     buf[10] = '\n';
